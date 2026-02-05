@@ -30,14 +30,16 @@ namespace The101Box
 
             // Ensure External Tuner button uses Flat style for color changes
             TuneButton.FlatStyle = FlatStyle.Flat;
+            TuneButton.BackColor = Color.DarkGreen; // Set initial background color
+            TuneButton.ForeColor = Color.Yellow; // Set text color to yellow
             TuneButton.FlatAppearance.BorderSize = 0; // We'll draw our own border
+            TuneButton.FlatAppearance.MouseDownBackColor = Color.Red; // Set mouse down color
+            TuneButton.FlatAppearance.MouseOverBackColor = Color.Blue; // Set mouse over color
+            TuneButton.FlatAppearance.BorderColor = Color.White; // Set border color
             TuneButton.Paint += TuneButton_Paint;
 
-            // Attach color-changing event handlers
-            TuneButton.MouseEnter += TuneButton_MouseEnter;
-            TuneButton.MouseLeave += TuneButton_MouseLeave;
-            TuneButton.MouseDown += TuneButton_MouseDown_Color;
-            TuneButton.MouseUp += TuneButton_MouseUp_Color;
+            // Ensure StartButton (Reset) text is yellow
+            StartButton.ForeColor = Color.Yellow;
 
             // Rechterknop RX1+RX2 uit op 
             RX12B.MouseDown += RX12B_MouseDown;
@@ -46,7 +48,7 @@ namespace The101Box
             {
                 Handshake = Handshake.None,
                 RtsEnable = true,
-                ReadTimeout = 5000
+                ReadTimeout = 5000 
             };
 
             // Open the serial port on a background thread so UI initialization isn't blocked.
@@ -60,18 +62,20 @@ namespace The101Box
                 {
                     Serial_Port.Open();
 
-                    // start the main loop after the port is open
-                    await DoThisLoopAsync();
-
-                    // enable UI controls on the UI thread
+                    // enable UI controls on the UI thread after port opens
                     if (IsHandleCreated)
                     {
                         Invoke((Action)(() =>
                         {
                             StartButton.Enabled = true;
                             TuneButton.Enabled = true;
+                            StartButton.ForeColor = Color.Yellow;
+                            TuneButton.ForeColor = Color.Yellow;
                         }));
                     }
+
+                    // start the main loop after the port is open
+                    await DoThisLoopAsync();
                 }
                 catch (Exception ex)
                 {
@@ -91,11 +95,22 @@ namespace The101Box
             {
                 try
                 {
+                    // Discard buffers at the start of each loop to prevent stale data
+                    Serial_Port.DiscardInBuffer();
+                    Serial_Port.DiscardOutBuffer();
+
                     IssueCmd("RM9;");
                     temp = Serial_Port.ReadTo(";");
-                    Ptemp = temp.Substring(3, 3);
-                    tempnum = Convert.ToDecimal(Ptemp);
-                    TempD = Decimal.Floor((tempnum / 2.3M) - 6);
+                    if (temp.Length >= 6)
+                    {
+                        Ptemp = temp.Substring(3, 3);
+                        tempnum = Convert.ToDecimal(Ptemp);
+                        TempD = Decimal.Floor((tempnum / 2.3M) - 6);
+                    }
+                    else
+                    {
+                        TempD = 0;
+                    }
 
                     if (TempD > 40)
                     {
@@ -113,67 +128,116 @@ namespace The101Box
 
                     IssueCmd("PC;");
                     temp = Serial_Port.ReadTo(";");
-                    Pwr = temp.Substring(2, 3);
-                    PwrD = Pwr.TrimStart('0');
+                    if (temp.Length >= 5)
+                    {
+                        Pwr = temp.Substring(2, 3);
+                        PwrD = Pwr.TrimStart('0');
+                    }
+                    else
+                    {
+                        PwrD = "0";
+                    }
 
                     IssueCmd("EX030107;");
                     temp = Serial_Port.ReadTo(";");
-                    Rfsql = temp.Substring(8, 1);
-                    RfsqlD = Rfsql == "0" ? "RF" : "Squelch";
+                    if (temp.Length >= 9)
+                    {
+                        Rfsql = temp.Substring(8, 1);
+                        RfsqlD = Rfsql == "0" ? "RF" : "Squelch";
+                    }
+                    else
+                    {
+                        RfsqlD = "RF";
+                    }
 
                     IssueCmd("SS06;");
                     temp = Serial_Port.ReadTo(";");
-                    Dspmod = temp.Substring(4, 1);
-                    DspmodD = Dspmod switch
+                    if (temp.Length >= 5)
                     {
-                        "8" => "CURSOR",
-                        "5" => "CENTER",
-                        _ => "FIX"
-                    };
+                        Dspmod = temp.Substring(4, 1);
+                        DspmodD = Dspmod switch
+                        {
+                            "8" => "CURSOR",
+                            "5" => "CENTER",
+                            _ => "FIX"
+                        };
+                    }
+                    else
+                    {
+                        DspmodD = "FIX";
+                    }
 
                     IssueCmd("SS05;");
                     temp = Serial_Port.ReadTo(";");
-                    Dspspan = temp.Substring(4, 1);
-                    DspspanD = Dspspan switch
+                    if (temp.Length >= 5)
                     {
-                        "6" => "100k",
-                        "7" => "200k",
-                        "8" => "500k",
-                        _ => "*OTHER*"
-                    };
+                        Dspspan = temp.Substring(4, 1);
+                        DspspanD = Dspspan switch
+                        {
+                            "6" => "100k",
+                            "7" => "200k",
+                            "8" => "500k",
+                            _ => "*OTHER*"
+                        };
+                    }
+                    else
+                    {
+                        DspspanD = "*OTHER*";
+                    }
 
                     IssueCmd("MD0;");
                     temp = Serial_Port.ReadTo(";");
-                    Mode = temp.Substring(3, 1);
-                    ModeD = Mode switch
+                    if (temp.Length >= 4)
                     {
-                        "1" => "LSB",
-                        "2" => "USB",
-                        "3" => "CW",
-                        _ => "???"
-                    };
+                        Mode = temp.Substring(3, 1);
+                        ModeD = Mode switch
+                        {
+                            "1" => "LSB",
+                            "2" => "USB",
+                            "3" => "CW",
+                            _ => "???"
+                        };
+                    }
+                    else
+                    {
+                        ModeD = "???";
+                    }
 
                     IssueCmd("AN0;");
                     temp = Serial_Port.ReadTo(";");
-                    Dspant = temp.Substring(3, 1);
-                    DspantD = Dspant switch
+                    if (temp.Length >= 4)
                     {
-                        "1" => "ANT1",
-                        "2" => "ANT2",
-                        "3" => "ANT3/RX",
-                        _ => "???"
-                    };
+                        Dspant = temp.Substring(3, 1);
+                        DspantD = Dspant switch
+                        {
+                            "1" => "ANT1",
+                            "2" => "ANT2",
+                            "3" => "ANT3/RX",
+                            _ => "???"
+                        };
+                    }
+                    else
+                    {
+                        DspantD = "???";
+                    }
 
                     IssueCmd("PA0;");
                     temp = Serial_Port.ReadTo(";");
-                    Dspipo = temp.Substring(3, 1);
-                    DspipoD = Dspipo switch
+                    if (temp.Length >= 4)
                     {
-                        "0" => "IPO",
-                        "1" => "AMP1",
-                        "2" => "AMP2",
-                        _ => "???"
-                    };
+                        Dspipo = temp.Substring(3, 1);
+                        DspipoD = Dspipo switch
+                        {
+                            "0" => "IPO",
+                            "1" => "AMP1",
+                            "2" => "AMP2",
+                            _ => "???"
+                        };
+                    }
+                    else
+                    {
+                        DspipoD = "???";
+                    }
 
                     IssueCmd("FR;");
                     temp = Serial_Port.ReadTo(";");
@@ -215,7 +279,7 @@ namespace The101Box
                     {
                         // If logging fails, silently ignore to avoid cascading errors
                     }
-                    await Task.Delay(500, cts.Token);
+                    await Task.Delay(100, cts.Token); // Reduced delay on error to retry faster
                 }
             }
         }
@@ -251,7 +315,7 @@ namespace The101Box
         private void IssueCmd(string cmd)
         {
             Serial_Port.Write(cmd);
-            Thread.Sleep(60);
+            Thread.Sleep(6); // Increased to 60 ms to match other working programs' timing
         }
 
         private void VN_on(object sender, MouseEventArgs e) { IssueCmd("VT0100;"); }
