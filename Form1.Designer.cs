@@ -707,7 +707,7 @@ namespace The101Box
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "MainForm";
-            Text = "The101Box v 12 - by Kees, ON9KVE - COM8";
+            Text = "The101Box v 13 - by Kees, ON9KVE - COM4";
             TransparencyKey = System.Drawing.Color.Fuchsia;
             ResumeLayout(false);
             PerformLayout();

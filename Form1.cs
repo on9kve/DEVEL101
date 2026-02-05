@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.IO.Ports;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 // 
@@ -14,7 +14,6 @@ using System.Windows.Forms;
 
 
 namespace The101Box
-
 {
     public partial class MainForm : Form
     {
@@ -23,6 +22,7 @@ namespace The101Box
             DspmodD, DspspanD, FColorB, Mode, ModeD, Dspant, DspantD, Dspipo, DspipoD, DspRx, DspRxD, SButton, DScopspan, Bar = "";
         public decimal TempD, tempnum, Rfsqlnum, Dsppodnum, SecondNum;
 
+        private CancellationTokenSource cts = new();
 
         public MainForm()
         {
@@ -54,15 +54,14 @@ namespace The101Box
             StartButton.Enabled = false;
             TuneButton.Enabled = false;
 
-            Task.Run(() =>
+            Task.Run(async () =>
             {
                 try
                 {
                     Serial_Port.Open();
 
                     // start the main loop after the port is open
-                    SButton = "Loop";
-                    Task.Run((Action)DoThisLoop);
+                    await DoThisLoopAsync();
 
                     // enable UI controls on the UI thread
                     if (IsHandleCreated)
@@ -82,25 +81,17 @@ namespace The101Box
                     }
                 }
             });
-
-
-
         }
 
-
-        private void DoThisLoop()                                       // loop na drukken start button
+        private async Task DoThisLoopAsync()
         {
-            while (SButton != null)
+            while (!cts.IsCancellationRequested)
             {
-
-                IssueCmd("RM9;");                                       // Read temp
-
-                temp = Serial_Port.ReadTo(";");                         // save return string van comport
-                Ptemp = temp.Substring(3, 3);                           // haal vanaf 4e getal eruit (3 lang)
-
-                tempnum = Convert.ToDecimal(Ptemp);                     // van string naar numeriek
-                TempD = Decimal.Floor((tempnum / 2.3M) - 6);             // uitgelezen waarde naar graden celcius
-
+                IssueCmd("RM9;");
+                temp = Serial_Port.ReadTo(";");
+                Ptemp = temp.Substring(3, 3);
+                tempnum = Convert.ToDecimal(Ptemp);
+                TempD = Decimal.Floor((tempnum / 2.3M) - 6);
 
                 if (TempD > 40)
                 {
@@ -116,560 +107,206 @@ namespace The101Box
                     FColorB = "Cyan";
                 }
 
-
-                IssueCmd("PC;");                               // lees power PWR
+                IssueCmd("PC;");
                 temp = Serial_Port.ReadTo(";");
                 Pwr = temp.Substring(2, 3);
                 PwrD = Pwr.TrimStart('0');
 
-
-                IssueCmd("EX030107;");                         // lees stand RF/SQL 
+                IssueCmd("EX030107;");
                 temp = Serial_Port.ReadTo(";");
                 Rfsql = temp.Substring(8, 1);
+                RfsqlD = Rfsql == "0" ? "RF" : "Squelch";
 
-                if (Rfsql == "0")
-                {
-                    RfsqlD = "RF";
-                }
-                else
-                {
-                    RfsqlD = "Squelch";
-                }
-
-
-
-                IssueCmd("SS06;");                               // lees Display mode
+                IssueCmd("SS06;");
                 temp = Serial_Port.ReadTo(";");
                 Dspmod = temp.Substring(4, 1);
+                DspmodD = Dspmod switch
+                {
+                    "8" => "CURSOR",
+                    "5" => "CENTER",
+                    _ => "FIX"
+                };
 
-                if (Dspmod == "8")
-                {
-                    DspmodD = "CURSOR";
-                }
-                else if (Dspmod == "5")
-                {
-                    DspmodD = "CENTER";
-                }
-                else
-                {
-                    DspmodD = "FIX";
-                }
-
-                IssueCmd("SS05;");                               // lees spectrum span
+                IssueCmd("SS05;");
                 temp = Serial_Port.ReadTo(";");
                 Dspspan = temp.Substring(4, 1);
-
-                if (Dspspan == "6")
+                DspspanD = Dspspan switch
                 {
-                    DspspanD = "100k";
-                }
-                else if (Dspspan == "7")
-                {
-                    DspspanD = "200k";
-                }
-                else if (Dspspan == "8")
-                {
-                    DspspanD = "500k";
-                }
-                else
-                {
-                    DspspanD = "*OTHER*";
-                }
+                    "6" => "100k",
+                    "7" => "200k",
+                    "8" => "500k",
+                    _ => "*OTHER*"
+                };
 
-
-
-                IssueCmd("MD0;");                               // lees mode (usb, lsb, cw, ....)
+                IssueCmd("MD0;");
                 temp = Serial_Port.ReadTo(";");
                 Mode = temp.Substring(3, 1);
-
-                if (Mode == "1")
+                ModeD = Mode switch
                 {
-                    ModeD = "LSB";
-                }
-                else if (Mode == "2") { ModeD = "USB"; }
-                else if (Mode == "3") { ModeD = "CW"; }
-                else { ModeD = "???"; }
+                    "1" => "LSB",
+                    "2" => "USB",
+                    "3" => "CW",
+                    _ => "???"
+                };
 
                 IssueCmd("AN0;");
                 temp = Serial_Port.ReadTo(";");
                 Dspant = temp.Substring(3, 1);
-                if (Dspant == "1")
+                DspantD = Dspant switch
                 {
-                    DspantD = "ANT1";
-                }
-                else if (Dspant == "2") { DspantD = "ANT2"; }
-                else if (Dspant == "3") { DspantD = "ANT3/RX"; }
-                else { DspantD = "???"; }
+                    "1" => "ANT1",
+                    "2" => "ANT2",
+                    "3" => "ANT3/RX",
+                    _ => "???"
+                };
 
                 IssueCmd("PA0;");
                 temp = Serial_Port.ReadTo(";");
                 Dspipo = temp.Substring(3, 1);
-                if (Dspipo == "0")
+                DspipoD = Dspipo switch
                 {
-                    DspipoD = "IPO";
-                }
-                else if (Dspipo == "1") { DspipoD = "AMP1"; }
-                else if (Dspipo == "2") { DspipoD = "AMP2"; }
-                else { DspipoD = "???"; }
+                    "0" => "IPO",
+                    "1" => "AMP1",
+                    "2" => "AMP2",
+                    _ => "???"
+                };
 
-                IssueCmd("FR;");                         // lees RXs status 
+                IssueCmd("FR;");
                 temp = Serial_Port.ReadTo(";");
                 DspRx = temp;
-
-                if (DspRx == "FR01")
+                DspRxD = DspRx switch
                 {
-                    DspRxD = "RX 1";
-                }
-                else if (DspRx == "FR10") { DspRxD = "RX 2"; }
-                else if (DspRx == "FR00") { DspRxD = "RX 1 + 2"; }
-                else if (DspRx == "FR11") { DspRxD = "RXs OFF"; }
-                else { DspRxD = "???"; }
+                    "FR01" => "RX 1",
+                    "FR10" => "RX 2",
+                    "FR00" => "RX 1 + 2",
+                    "FR11" => "RXs OFF",
+                    _ => "???"
+                };
 
+                // Update UI
+                UpdateTextBox(TEMP_box, $"{TempD} °C ({Ptemp})", Color.FromName(FColorB));
+                UpdateTextBox(RFSQL_box, RfsqlD);
+                UpdateTextBox(PWR_box, PwrD);
+                UpdateTextBox(DSPMOD_box, DspmodD);
+                UpdateTextBox(DSPSPAN_box, DspspanD);
+                UpdateTextBox(MODE_box, ModeD);
+                UpdateTextBox(ANT_box, DspantD);
+                UpdateTextBox(IPO_box, DspipoD);
+                UpdateTextBox(RX_box, DspRxD);
 
-                //               Tijdstip = DateTime.Now.ToString("HH:mm:ss"); vervangen door scan line
-
-
-                // Display gegevens **************************************************************<<<<<<<<<<<<<<<<<<<<
-
-                // TEMP_box 
-
-                WriteTextSafeTEMP(TempD + " °C (" + Ptemp + ")");
-
-                // RFSQL_box
-                WriteTextSafeRFSQL(RfsqlD);
-
-                // PWR_box
-                WriteTextSafePWR(PwrD);
-
-                // DSPMOD_box
-                WriteTextSafeDSPMOD(DspmodD);
-
-                // DSPSPAN_box
-                WriteTextSafeDSPSPAN(DspspanD);
-
-
-                // MODE_box
-                WriteTextSafeMODE(ModeD);
-
-                // Antenne box
-                WriteTextSafeANT(DspantD);
-
-                // IPO-box
-                WriteTextSafeIPO(DspipoD);
-
-                // RX-box
-                WriteTextSafeRX(DspRxD);
-
-                // TIJDSTIP_box -> vervangen door bewegende blokjes ofwel scan line  (=programma loopt nog !)
                 string Blokje = "■";
+                Bar = Bar.Length < 7 ? Bar + Blokje : Blokje;
+                UpdateTextBox(TIJDSTIP_box, Bar);
 
-                if (Bar.Length < 7)
-                { Bar += Blokje; }
-                else
-                { Bar = Blokje; }
-
-                WriteTextSafeTIJDSTIP(Bar);
-
-
-                Thread.Sleep(100); // wait 0.1 sec
+                await Task.Delay(100, cts.Token);
             }
         }
-
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            var threadParameters = new System.Threading.ThreadStart(delegate { WriteTextSafeTEMP(" "); });
-            var thread2 = new System.Threading.Thread(threadParameters);
-            thread2.Start();
+            UpdateTextBox(TEMP_box, " ");
         }
 
-
-
-        // Functie Result veld -> temperatuur
-        public void WriteTextSafeTEMP(string text)
+        private void UpdateTextBox(TextBox tb, string text, Color? foreColor = null)
         {
-            if (TEMP_box.InvokeRequired)
+            if (tb.InvokeRequired)
             {
-                // Call this same method but append THREAD2 to the text
-                Action safeWriteTEMP = delegate { WriteTextSafeTEMP($"{text}"); };
-                TEMP_box.Invoke(safeWriteTEMP);
-
+                tb.Invoke(() => UpdateTextBox(tb, text, foreColor));
             }
             else
-                TEMP_box.Text = text;
-            TEMP_box.BackColor = TEMP_box.BackColor;
-            TEMP_box.ForeColor = Color.FromName(FColorB);
-        }
-
-        //=================================================================================//
-
-        // Display RF/SQL
-        public void WriteTextSafeRFSQL(string text)
-        {
-            if (RFSQL_box.InvokeRequired)
             {
-                // Call this same method but append THREAD2 to the text
-                Action safeWriteRFSQL = delegate { WriteTextSafeRFSQL($"{text}"); };
-                RFSQL_box.Invoke(safeWriteRFSQL);
+                tb.Text = text;
+                if (foreColor.HasValue) tb.ForeColor = foreColor.Value;
             }
-            else
-                RFSQL_box.Text = text;
         }
-
-        //=================================================================================//
-
-        // Display PWR
-        public void WriteTextSafePWR(string text)
-        {
-            if (PWR_box.InvokeRequired)
-            {
-                // Call this same method but append THREAD2 to the text
-                Action safeWritePWR = delegate { WriteTextSafePWR($"{text}"); };
-                PWR_box.Invoke(safeWritePWR);
-            }
-            else
-                PWR_box.Text = text;
-        }
-
-        //=================================================================================//
-
-        // Display DSPMOD = display mode van de display -> cursor, center of fix
-        public void WriteTextSafeDSPMOD(string text)
-        {
-            if (DSPMOD_box.InvokeRequired)
-            {
-                // Call this same method but append THREAD2 to the text
-                Action safeWriteDSPMOD = delegate { WriteTextSafeDSPMOD($"{text}"); };
-                DSPMOD_box.Invoke(safeWriteDSPMOD);
-            }
-            else
-                DSPMOD_box.Text = text;
-        }
-        //=================================================================================//
-
-        // Display DSPSPAN = SCOPE SPAN
-        public void WriteTextSafeDSPSPAN(string text)
-        {
-            if (DSPSPAN_box.InvokeRequired)
-            {
-                // Call this same method but append THREAD2 to the text
-                Action safeWriteDSPSPAN = delegate { WriteTextSafeDSPSPAN($"{text}"); };
-                DSPSPAN_box.Invoke(safeWriteDSPSPAN);
-            }
-            else
-                DSPSPAN_box.Text = text;
-        }
-
-
-        //=================================================================================//
-
-        // Display MODE
-        public void WriteTextSafeMODE(string text)
-        {
-            if (MODE_box.InvokeRequired)
-            {
-                // Call this same method but append THREAD2 to the text
-                Action safeWriteMODE = delegate { WriteTextSafeMODE($"{text}"); };
-                MODE_box.Invoke(safeWriteMODE);
-            }
-            else
-                MODE_box.Text = text;
-        }
-
-        //=================================================================================//
-
-        // Display ANT
-        public void WriteTextSafeANT(string text)
-        {
-            if (ANT_box.InvokeRequired)
-            {
-                // Call this same method but append THREAD2 to the text
-                Action safeWriteANT = delegate { WriteTextSafeANT($"{text}"); };
-                ANT_box.Invoke(safeWriteANT);
-            }
-            else
-                ANT_box.Text = text;
-        }
-
-        //=================================================================================//
-
-        // Display IPO
-        public void WriteTextSafeIPO(string text)
-        {
-            if (IPO_box.InvokeRequired)
-            {
-                // Call this same method but append THREAD2 to the text
-                Action safeWriteIPO = delegate { WriteTextSafeIPO($"{text}"); };
-                IPO_box.Invoke(safeWriteIPO);
-            }
-            else
-                IPO_box.Text = text;
-        }
-        //=================================================================================//
-
-        // Display RXs
-        public void WriteTextSafeRX(string text)
-        {
-            if (RX_box.InvokeRequired)
-            {
-                // Call this same method but append THREAD2 to the text
-                Action safeWriteRX = delegate { WriteTextSafeRX($"{text}"); };
-                RX_box.Invoke(safeWriteRX);
-            }
-            else
-                RX_box.Text = text;
-        }
-
-        //=================================================================================//
-
-        // Display TIJDSTIP
-        public void WriteTextSafeTIJDSTIP(string text)
-        {
-            if (TIJDSTIP_box.InvokeRequired)
-            {
-                // Call this same method but append THREAD2 to the text
-                Action safeWriteTIJDSTIP = delegate { WriteTextSafeTIJDSTIP($"{text}"); };
-                TIJDSTIP_box.Invoke(safeWriteTIJDSTIP);
-            }
-            else
-                TIJDSTIP_box.Text = text;
-        }
-
-        //=================================================================================//
-
-
-
 
         private void StartButton_Click(object sender, MouseEventArgs e)
         {
-
-            SButton = "Loop";
-            Task.Run((Action)DoThisLoop);
-
+            cts.Cancel();
+            cts = new CancellationTokenSource();
+            Task.Run(() => DoThisLoopAsync());
         }
 
-        private void TextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void TextBox2_TextChanged(object sender, EventArgs e)
-        {
-
-        }
+        private void TextBox1_TextChanged(object sender, EventArgs e) { }
+        private void TextBox2_TextChanged(object sender, EventArgs e) { }
 
         private void IssueCmd(string cmd)
         {
-            //          Serial_Port.DiscardInBuffer();
-            //          Serial_Port.DiscardOutBuffer();
-            //          temp = "";
             Serial_Port.Write(cmd);
             Thread.Sleep(60);
         }
-        private void VN_on(object sender, MouseEventArgs e)
-        {
-            IssueCmd("VT0100;");                 //VC ON
-        }
 
-        private void VC_off(object sender, MouseEventArgs e)
-        {
-            IssueCmd("VT0000;");                // VC off
-        }
-        private void RF_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("EX0301070;");             // RF knop is RF
-        }
-
-        private void SQL_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("EX0301071;");             // RF knop is SQL
-        }
+        private void VN_on(object sender, MouseEventArgs e) { IssueCmd("VT0100;"); }
+        private void VC_off(object sender, MouseEventArgs e) { IssueCmd("VT0000;"); }
+        private void RF_click(object sender, MouseEventArgs e) { IssueCmd("EX0301070;"); }
+        private void SQL_click(object sender, MouseEventArgs e) { IssueCmd("EX0301071;"); }
         private void TuneButton_MouseDown(object sender, MouseEventArgs e)
         {
-            IssueCmd("MD0;");                   // read mode
-
-            mode = Serial_Port.ReadTo(";");     // save mode
-                                                //          Console.Out.WriteLine(mode);
-
-            IssueCmd("PC;");                    // read power
-            string resp;
-            resp = Serial_Port.ReadTo(";");
-            Pstr = resp[2..];                   // save power
-
-            IssueCmd("PC010;");                 // set power to 10 WATT
-
-            IssueCmd("MD05;");                  // set mode to AM
-
-            IssueCmd("MX1;");                   // set MOX on (=TX)
+            IssueCmd("MD0;");
+            mode = Serial_Port.ReadTo(";");
+            IssueCmd("PC;");
+            string resp = Serial_Port.ReadTo(";");
+            Pstr = resp[2..];
+            IssueCmd("PC010;");
+            IssueCmd("MD05;");
+            IssueCmd("MX1;");
         }
-
         private void TuneButton_MouseUp(object sender, MouseEventArgs e)
         {
-            IssueCmd("MX0;");                   // set MOX off (=TX off, RX)
-
+            IssueCmd("MX0;");
             string cmd = mode + ";";
-            IssueCmd(cmd);                      // set mode @ before tuning
-
+            IssueCmd(cmd);
             cmd = "PC" + Pstr + ";";
-            IssueCmd(cmd);                      // set power ! before tuning 
-
+            IssueCmd(cmd);
         }
-        private void Center_Click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("SS0650000;");             // Centreer mode scope
-        }
-
+        private void Center_Click(object sender, MouseEventArgs e) { IssueCmd("SS0650000;"); }
         private void Cursor_Click(object sender, MouseEventArgs e)
         {
-            IssueCmd("SS0650000;");             // Centreren cursor
-            IssueCmd("SS0680000;");             // Cursor mode scope
+            IssueCmd("SS0650000;");
+            IssueCmd("SS0680000;");
         }
-
         private void Fix_Click(object sender, MouseEventArgs e)
         {
-            IssueCmd("SS0650000;");             // Centreren cursor
-            IssueCmd("SS06B0000;");             // Fix mode scope
+            IssueCmd("SS0650000;");
+            IssueCmd("SS06B0000;");
         }
-
-        private void USB_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("MD02;");                  // mode USB
-        }
-
-        private void LSB_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("MD01;");                  // mode LSB
-        }
-
-        private void CW_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("MD03;");                  // Mode CW
-        }
-
-        private void P5WB_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("PC005;");                  // power 5 watt
-        }
-
-        private void P50W_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("PC050;");                 // power 50 watt
-        }
-
-        private void P100W_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("PC100;");                  // power 100 watt
-        }
-
-        private void ANT1B_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("AN01;");                  // antenne 1
-        }
-
-        private void ANT2B_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("AN02;");                  // antenne 2
-        }
-        private void ANT3RXB_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("AN03;");                  // antenne 3 = RX antenna
-        }
-
-        private void IPOB_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("PA00;");                  // IPO
-        }
-
-        private void AMP1B_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("PA01;");                  // AMP1
-        }
-
-        private void AMP2B_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("PA02;");                  // AMP2
-        }
-
-        private void RX1B_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("FR01;");                  // RX1 on, RX2 off
-        }
-
-        private void RX2B_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("FR10;");                  // RX1 off, RX2 on
-        }
-
-        private void RX12B_click(object sender, MouseEventArgs e)
-        {
-            IssueCmd("FR00;");                  // RX1 on, RX2 on
-        }
+        private void USB_click(object sender, MouseEventArgs e) { IssueCmd("MD02;"); }
+        private void LSB_click(object sender, MouseEventArgs e) { IssueCmd("MD01;"); }
+        private void CW_click(object sender, MouseEventArgs e) { IssueCmd("MD03;"); }
+        private void P5WB_click(object sender, MouseEventArgs e) { IssueCmd("PC005;"); }
+        private void P50W_click(object sender, MouseEventArgs e) { IssueCmd("PC050;"); }
+        private void P100W_click(object sender, MouseEventArgs e) { IssueCmd("PC100;"); }
+        private void ANT1B_click(object sender, MouseEventArgs e) { IssueCmd("AN01;"); }
+        private void ANT2B_click(object sender, MouseEventArgs e) { IssueCmd("AN02;"); }
+        private void ANT3RXB_click(object sender, MouseEventArgs e) { IssueCmd("AN03;"); }
+        private void IPOB_click(object sender, MouseEventArgs e) { IssueCmd("PA00;"); }
+        private void AMP1B_click(object sender, MouseEventArgs e) { IssueCmd("PA01;"); }
+        private void AMP2B_click(object sender, MouseEventArgs e) { IssueCmd("PA02;"); }
+        private void RX1B_click(object sender, MouseEventArgs e) { IssueCmd("FR01;"); }
+        private void RX2B_click(object sender, MouseEventArgs e) { IssueCmd("FR10;"); }
+        private void RX12B_click(object sender, MouseEventArgs e) { IssueCmd("FR00;"); }
         private void RX12B_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
-            {
-                IssueCmd("FR11;");              // RX1 and RX2 off (sort of mute)
-            }
+            if (e.Button == MouseButtons.Right) IssueCmd("FR11;");
         }
-
-        private void SSB1_click(object sender, MouseEventArgs e)
-        {
-            //          IssueCmd("SS0650000;");             // Centreren cursor
-            IssueCmd("SS0560000;");                  // 100k span
-        }
-
-        private void SSB2_click(object sender, MouseEventArgs e)
-        {
-            //           IssueCmd("SS0650000;");             // Centreren cursor
-            IssueCmd("SS0570000;");                  // 200k span
-        }
-
-        private void SSB3_click(object sender, MouseEventArgs e)
-        {
-            //           IssueCmd("SS0650000;");             // Centreren cursor
-            IssueCmd("SS0580000;");                  // 500k span
-        }
-        private void textBox1_TextChanged_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void RX_box_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void FixB_Click(object sender, EventArgs e)
-        {
-
-        }
+        private void SSB1_click(object sender, MouseEventArgs e) { IssueCmd("SS0560000;"); }
+        private void SSB2_click(object sender, MouseEventArgs e) { IssueCmd("SS0570000;"); }
+        private void SSB3_click(object sender, MouseEventArgs e) { IssueCmd("SS0580000;"); }
+        private void textBox1_TextChanged_1(object sender, EventArgs e) { }
+        private void RX_box_TextChanged(object sender, EventArgs e) { }
+        private void FixB_Click(object sender, EventArgs e) { }
 
         // --- External Tuner color change handlers ---
-        private void TuneButton_MouseEnter(object sender, EventArgs e)
-        {
-            TuneButton.BackColor = Color.Blue;
-        }
-
-        private void TuneButton_MouseLeave(object sender, EventArgs e)
-        {
-            TuneButton.BackColor = Color.DarkGreen;
-        }
-
-        private void TuneButton_MouseDown_Color(object sender, MouseEventArgs e)
-        {
-            TuneButton.BackColor = Color.Red;
-        }
-
+        private void TuneButton_MouseEnter(object sender, EventArgs e) { TuneButton.BackColor = Color.Blue; }
+        private void TuneButton_MouseLeave(object sender, EventArgs e) { TuneButton.BackColor = Color.DarkGreen; }
+        private void TuneButton_MouseDown_Color(object sender, MouseEventArgs e) { TuneButton.BackColor = Color.Red; }
         private void TuneButton_MouseUp_Color(object sender, MouseEventArgs e)
         {
-            // Restore hover color if still hovered, else normal
             if (TuneButton.ClientRectangle.Contains(TuneButton.PointToClient(Cursor.Position)))
                 TuneButton.BackColor = Color.Blue;
             else
                 TuneButton.BackColor = Color.DarkGreen;
         }
-
-        // Custom paint for TuneButton to draw a solid white border
         private void TuneButton_Paint(object sender, PaintEventArgs e)
         {
             var btn = sender as System.Windows.Forms.Button;
@@ -681,776 +318,5 @@ namespace The101Box
                 e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, btn.Width - thickness, btn.Height - thickness));
             }
         }
-
-
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
