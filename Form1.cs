@@ -85,120 +85,138 @@ namespace The101Box
 
         private async Task DoThisLoopAsync()
         {
+            string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error.log");
+
             while (!cts.IsCancellationRequested)
             {
-                IssueCmd("RM9;");
-                temp = Serial_Port.ReadTo(";");
-                Ptemp = temp.Substring(3, 3);
-                tempnum = Convert.ToDecimal(Ptemp);
-                TempD = Decimal.Floor((tempnum / 2.3M) - 6);
-
-                if (TempD > 40)
+                try
                 {
-                    FColorB = "Red";
-                    Console.Beep(3000, 1000);
+                    IssueCmd("RM9;");
+                    temp = Serial_Port.ReadTo(";");
+                    Ptemp = temp.Substring(3, 3);
+                    tempnum = Convert.ToDecimal(Ptemp);
+                    TempD = Decimal.Floor((tempnum / 2.3M) - 6);
+
+                    if (TempD > 40)
+                    {
+                        FColorB = "Red";
+                        Console.Beep(3000, 1000);
+                    }
+                    else if (TempD > 33)
+                    {
+                        FColorB = "Orange";
+                    }
+                    else
+                    {
+                        FColorB = "Cyan";
+                    }
+
+                    IssueCmd("PC;");
+                    temp = Serial_Port.ReadTo(";");
+                    Pwr = temp.Substring(2, 3);
+                    PwrD = Pwr.TrimStart('0');
+
+                    IssueCmd("EX030107;");
+                    temp = Serial_Port.ReadTo(";");
+                    Rfsql = temp.Substring(8, 1);
+                    RfsqlD = Rfsql == "0" ? "RF" : "Squelch";
+
+                    IssueCmd("SS06;");
+                    temp = Serial_Port.ReadTo(";");
+                    Dspmod = temp.Substring(4, 1);
+                    DspmodD = Dspmod switch
+                    {
+                        "8" => "CURSOR",
+                        "5" => "CENTER",
+                        _ => "FIX"
+                    };
+
+                    IssueCmd("SS05;");
+                    temp = Serial_Port.ReadTo(";");
+                    Dspspan = temp.Substring(4, 1);
+                    DspspanD = Dspspan switch
+                    {
+                        "6" => "100k",
+                        "7" => "200k",
+                        "8" => "500k",
+                        _ => "*OTHER*"
+                    };
+
+                    IssueCmd("MD0;");
+                    temp = Serial_Port.ReadTo(";");
+                    Mode = temp.Substring(3, 1);
+                    ModeD = Mode switch
+                    {
+                        "1" => "LSB",
+                        "2" => "USB",
+                        "3" => "CW",
+                        _ => "???"
+                    };
+
+                    IssueCmd("AN0;");
+                    temp = Serial_Port.ReadTo(";");
+                    Dspant = temp.Substring(3, 1);
+                    DspantD = Dspant switch
+                    {
+                        "1" => "ANT1",
+                        "2" => "ANT2",
+                        "3" => "ANT3/RX",
+                        _ => "???"
+                    };
+
+                    IssueCmd("PA0;");
+                    temp = Serial_Port.ReadTo(";");
+                    Dspipo = temp.Substring(3, 1);
+                    DspipoD = Dspipo switch
+                    {
+                        "0" => "IPO",
+                        "1" => "AMP1",
+                        "2" => "AMP2",
+                        _ => "???"
+                    };
+
+                    IssueCmd("FR;");
+                    temp = Serial_Port.ReadTo(";");
+                    DspRx = temp;
+                    DspRxD = DspRx switch
+                    {
+                        "FR01" => "RX 1",
+                        "FR10" => "RX 2",
+                        "FR00" => "RX 1 + 2",
+                        "FR11" => "RXs OFF",
+                        _ => "???"
+                    };
+
+                    // Update UI
+                    UpdateTextBox(TEMP_box, $"{TempD} °C ({Ptemp})", Color.FromName(FColorB));
+                    UpdateTextBox(RFSQL_box, RfsqlD);
+                    UpdateTextBox(PWR_box, PwrD);
+                    UpdateTextBox(DSPMOD_box, DspmodD);
+                    UpdateTextBox(DSPSPAN_box, DspspanD);
+                    UpdateTextBox(MODE_box, ModeD);
+                    UpdateTextBox(ANT_box, DspantD);
+                    UpdateTextBox(IPO_box, DspipoD);
+                    UpdateTextBox(RX_box, DspRxD);
+
+                    string Blokje = "■";
+                    Bar = Bar.Length < 7 ? Bar + Blokje : Blokje;
+                    UpdateTextBox(TIJDSTIP_box, Bar);
+
+                    await Task.Delay(100, cts.Token);
                 }
-                else if (TempD > 33)
+                catch (Exception ex)
                 {
-                    FColorB = "Orange";
+                    string errorMsg = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Loop error: {ex.Message}";
+                    try
+                    {
+                        File.AppendAllText(logFilePath, errorMsg + Environment.NewLine);
+                    }
+                    catch
+                    {
+                        // If logging fails, silently ignore to avoid cascading errors
+                    }
+                    await Task.Delay(500, cts.Token);
                 }
-                else
-                {
-                    FColorB = "Cyan";
-                }
-
-                IssueCmd("PC;");
-                temp = Serial_Port.ReadTo(";");
-                Pwr = temp.Substring(2, 3);
-                PwrD = Pwr.TrimStart('0');
-
-                IssueCmd("EX030107;");
-                temp = Serial_Port.ReadTo(";");
-                Rfsql = temp.Substring(8, 1);
-                RfsqlD = Rfsql == "0" ? "RF" : "Squelch";
-
-                IssueCmd("SS06;");
-                temp = Serial_Port.ReadTo(";");
-                Dspmod = temp.Substring(4, 1);
-                DspmodD = Dspmod switch
-                {
-                    "8" => "CURSOR",
-                    "5" => "CENTER",
-                    _ => "FIX"
-                };
-
-                IssueCmd("SS05;");
-                temp = Serial_Port.ReadTo(";");
-                Dspspan = temp.Substring(4, 1);
-                DspspanD = Dspspan switch
-                {
-                    "6" => "100k",
-                    "7" => "200k",
-                    "8" => "500k",
-                    _ => "*OTHER*"
-                };
-
-                IssueCmd("MD0;");
-                temp = Serial_Port.ReadTo(";");
-                Mode = temp.Substring(3, 1);
-                ModeD = Mode switch
-                {
-                    "1" => "LSB",
-                    "2" => "USB",
-                    "3" => "CW",
-                    _ => "???"
-                };
-
-                IssueCmd("AN0;");
-                temp = Serial_Port.ReadTo(";");
-                Dspant = temp.Substring(3, 1);
-                DspantD = Dspant switch
-                {
-                    "1" => "ANT1",
-                    "2" => "ANT2",
-                    "3" => "ANT3/RX",
-                    _ => "???"
-                };
-
-                IssueCmd("PA0;");
-                temp = Serial_Port.ReadTo(";");
-                Dspipo = temp.Substring(3, 1);
-                DspipoD = Dspipo switch
-                {
-                    "0" => "IPO",
-                    "1" => "AMP1",
-                    "2" => "AMP2",
-                    _ => "???"
-                };
-
-                IssueCmd("FR;");
-                temp = Serial_Port.ReadTo(";");
-                DspRx = temp;
-                DspRxD = DspRx switch
-                {
-                    "FR01" => "RX 1",
-                    "FR10" => "RX 2",
-                    "FR00" => "RX 1 + 2",
-                    "FR11" => "RXs OFF",
-                    _ => "???"
-                };
-
-                // Update UI
-                UpdateTextBox(TEMP_box, $"{TempD} °C ({Ptemp})", Color.FromName(FColorB));
-                UpdateTextBox(RFSQL_box, RfsqlD);
-                UpdateTextBox(PWR_box, PwrD);
-                UpdateTextBox(DSPMOD_box, DspmodD);
-                UpdateTextBox(DSPSPAN_box, DspspanD);
-                UpdateTextBox(MODE_box, ModeD);
-                UpdateTextBox(ANT_box, DspantD);
-                UpdateTextBox(IPO_box, DspipoD);
-                UpdateTextBox(RX_box, DspRxD);
-
-                string Blokje = "■";
-                Bar = Bar.Length < 7 ? Bar + Blokje : Blokje;
-                UpdateTextBox(TIJDSTIP_box, Bar);
-
-                await Task.Delay(100, cts.Token);
             }
         }
 
