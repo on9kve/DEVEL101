@@ -1,20 +1,17 @@
 ﻿using System;
+using System.Drawing;
 using System.IO.Ports;
-using System.Windows.Forms;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Drawing;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 // 
-// Version : 12-8 (05 feb 26); 
-// Name    : The101Box Yaesu FTDX101 @ COM8
- 
+// Version : 13-4 (05 feb 26); 
+// Name    : The101Box Yaesu FTDX101 @ COM4
+
 
 namespace The101Box
 
@@ -45,7 +42,7 @@ namespace The101Box
             // Rechterknop RX1+RX2 uit op 
             RX12B.MouseDown += RX12B_MouseDown;
 
-            Serial_Port = new SerialPort("COM8", 38400, Parity.None, 8, StopBits.Two)
+            Serial_Port = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.Two)
             {
                 Handshake = Handshake.None,
                 RtsEnable = true,
@@ -617,19 +614,19 @@ namespace The101Box
 
         private void SSB1_click(object sender, MouseEventArgs e)
         {
-  //          IssueCmd("SS0650000;");             // Centreren cursor
+            //          IssueCmd("SS0650000;");             // Centreren cursor
             IssueCmd("SS0560000;");                  // 100k span
         }
 
         private void SSB2_click(object sender, MouseEventArgs e)
         {
- //           IssueCmd("SS0650000;");             // Centreren cursor
+            //           IssueCmd("SS0650000;");             // Centreren cursor
             IssueCmd("SS0570000;");                  // 200k span
         }
 
         private void SSB3_click(object sender, MouseEventArgs e)
         {
- //           IssueCmd("SS0650000;");             // Centreren cursor
+            //           IssueCmd("SS0650000;");             // Centreren cursor
             IssueCmd("SS0580000;");                  // 500k span
         }
         private void textBox1_TextChanged_1(object sender, EventArgs e)
@@ -685,7 +682,7 @@ namespace The101Box
             }
         }
 
-       
+
     }
 }
 
