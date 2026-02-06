@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 // 
-// Version : 13-4 (05 feb 26); 
+// Version : 14-4 (05 feb 26); 
 // Name    : The101Box Yaesu FTDX101 @ COM4
 
 
