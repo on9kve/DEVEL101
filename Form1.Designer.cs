@@ -66,6 +66,10 @@ namespace The101Box
             SSB3 = new System.Windows.Forms.Button();
             DSPSPAN_box = new System.Windows.Forms.TextBox();
             FixB = new System.Windows.Forms.Button();
+            rfGainTrackBar = new System.Windows.Forms.TrackBar();
+            volumeGainTrackBar = new System.Windows.Forms.TrackBar();
+            ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).BeginInit();
             SuspendLayout();
             // 
             // RFSQL_box
@@ -125,9 +129,9 @@ namespace The101Box
             TuneButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             TuneButton.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold);
             TuneButton.ForeColor = System.Drawing.Color.Yellow;
-            TuneButton.Location = new System.Drawing.Point(757, 1);
+            TuneButton.Location = new System.Drawing.Point(756, 0);
             TuneButton.Name = "TuneButton";
-            TuneButton.Size = new System.Drawing.Size(85, 123);
+            TuneButton.Size = new System.Drawing.Size(85, 124);
             TuneButton.TabIndex = 8;
             TuneButton.Text = "External Tuner";
             TuneButton.UseVisualStyleBackColor = false;
@@ -657,12 +661,40 @@ namespace The101Box
             FixB.Click += FixB_Click;
             FixB.MouseClick += Fix_Click;
             // 
+            // rfGainTrackBar
+            // 
+            rfGainTrackBar.BackColor = System.Drawing.Color.DarkGreen;
+            rfGainTrackBar.Location = new System.Drawing.Point(842, 1);
+            rfGainTrackBar.Maximum = 255;
+            rfGainTrackBar.Name = "rfGainTrackBar";
+            rfGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            rfGainTrackBar.Size = new System.Drawing.Size(45, 122);
+            rfGainTrackBar.TabIndex = 42;
+            rfGainTrackBar.TickFrequency = 16;
+            rfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            rfGainTrackBar.Value = 128;
+            // 
+            // volumeGainTrackBar
+            // 
+            volumeGainTrackBar.BackColor = System.Drawing.Color.DarkGreen;
+            volumeGainTrackBar.Location = new System.Drawing.Point(889, 1);
+            volumeGainTrackBar.Maximum = 255;
+            volumeGainTrackBar.Name = "volumeGainTrackBar";
+            volumeGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
+            volumeGainTrackBar.Size = new System.Drawing.Size(45, 122);
+            volumeGainTrackBar.TabIndex = 43;
+            volumeGainTrackBar.TickFrequency = 16;
+            volumeGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
+            volumeGainTrackBar.Value = 60;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.Black;
-            ClientSize = new System.Drawing.Size(843, 125);
+            ClientSize = new System.Drawing.Size(935, 125);
+            Controls.Add(volumeGainTrackBar);
+            Controls.Add(rfGainTrackBar);
             Controls.Add(FixB);
             Controls.Add(DSPSPAN_box);
             Controls.Add(SSB3);
@@ -701,7 +733,9 @@ namespace The101Box
             Controls.Add(TEMP_box);
             Controls.Add(RFSQL_box);
             Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            ForeColor = System.Drawing.Color.Yellow;
             FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            ImeMode = System.Windows.Forms.ImeMode.Disable;
             Location = new System.Drawing.Point(1, 1);
             Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             MaximizeBox = false;
@@ -709,6 +743,8 @@ namespace The101Box
             Name = "MainForm";
             Text = "The101Box v 13 - by Kees, ON9KVE - COM4";
             TransparencyKey = System.Drawing.Color.Fuchsia;
+            ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();
+            ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -751,6 +787,8 @@ namespace The101Box
         private System.Windows.Forms.Button SSB3;
         private System.Windows.Forms.TextBox DSPSPAN_box;
         private System.Windows.Forms.Button FixB;
+        private System.Windows.Forms.TrackBar rfGainTrackBar;
+        private System.Windows.Forms.TrackBar volumeGainTrackBar;
     }
 }
 

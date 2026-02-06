@@ -28,6 +28,13 @@ namespace The101Box
         {
             InitializeComponent();
 
+            // Increase form width to accommodate sliders
+            this.ClientSize = new Size(950, 125);
+
+            // Attach event handlers for sliders
+            rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
+            volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
+
             // Ensure External Tuner button uses Flat style for color changes
             TuneButton.FlatStyle = FlatStyle.Flat;
             TuneButton.BackColor = Color.DarkGreen; // Set initial background color
@@ -399,6 +406,18 @@ namespace The101Box
                 pen.Alignment = System.Drawing.Drawing2D.PenAlignment.Inset;
                 e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, btn.Width - thickness, btn.Height - thickness));
             }
+        }
+
+        private void RfGainTrackBar_ValueChanged(object sender, EventArgs e)
+        {
+            string value = ((TrackBar)sender).Value.ToString("D3");
+            IssueCmd($"RG0{value};");
+        }
+
+        private void VolumeGainTrackBar_ValueChanged(object sender, EventArgs e)
+        {
+            string value = ((TrackBar)sender).Value.ToString("D3");
+            IssueCmd($"AF0{value};");
         }
     }
 }
