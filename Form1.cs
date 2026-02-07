@@ -9,8 +9,8 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 // 
-// Version : 14-8 (05 feb 26); 
-// Name    : The101Box Yaesu FTDX101 @ COM8
+// Version : 15-4 (05 feb 26); 
+// Name    : The101Box Yaesu FTDX101 @ COM4
 
 
 namespace The101Box
@@ -23,6 +23,8 @@ namespace The101Box
         public decimal TempD, tempnum, Rfsqlnum, Dsppodnum, SecondNum;
 
         private CancellationTokenSource cts = new();
+        private bool vcOn = false; // Add toggle state
+        private bool rfSqlOn = false; // false for RF, true for Squelch
 
         public MainForm()
         {
@@ -45,13 +47,11 @@ namespace The101Box
             TuneButton.FlatAppearance.BorderColor = Color.White; // Set border color
             TuneButton.Paint += TuneButton_Paint;
 
-            // Ensure StartButton (Reset) text is yellow
-            StartButton.ForeColor = Color.Yellow;
 
             // Rechterknop RX1+RX2 uit op 
             RX12B.MouseDown += RX12B_MouseDown;
 
-            Serial_Port = new SerialPort("COM8", 38400, Parity.None, 8, StopBits.Two)
+            Serial_Port = new SerialPort("COM4", 38400, Parity.None, 8, StopBits.Two)
             {
                 Handshake = Handshake.None,
                 RtsEnable = true,
@@ -60,7 +60,6 @@ namespace The101Box
 
             // Open the serial port on a background thread so UI initialization isn't blocked.
             // Enable UI controls only after the port is opened successfully.
-            StartButton.Enabled = false;
             TuneButton.Enabled = false;
 
             Task.Run(async () =>
@@ -74,9 +73,7 @@ namespace The101Box
                     {
                         Invoke((Action)(() =>
                         {
-                            StartButton.Enabled = true;
                             TuneButton.Enabled = true;
-                            StartButton.ForeColor = Color.Yellow;
                             TuneButton.ForeColor = Color.Yellow;
                         }));
                     }
@@ -259,7 +256,7 @@ namespace The101Box
                     };
 
                     // Update UI
-                    UpdateTextBox(TEMP_box, $"{TempD} °C ({Ptemp})", Color.FromName(FColorB));
+                    UpdateTextBox(TEMP_box, $"{TempD:00}°C", Color.FromName(FColorB));
                     UpdateTextBox(RFSQL_box, RfsqlD);
                     UpdateTextBox(PWR_box, PwrD);
                     UpdateTextBox(DSPMOD_box, DspmodD);
@@ -269,9 +266,10 @@ namespace The101Box
                     UpdateTextBox(IPO_box, DspipoD);
                     UpdateTextBox(RX_box, DspRxD);
 
-                    string Blokje = "■";
-                    Bar = Bar.Length < 7 ? Bar + Blokje : Blokje;
-                    UpdateTextBox(TIJDSTIP_box, Bar);
+                    //--- Example of building a bar graph for RF gain (not currently used in UI)       leave it !            
+                    //                  string Blokje = "■";
+                    //                  Bar = Bar.Length < 7 ? Bar + Blokje : Blokje;
+                    //                  UpdateTextBox(VC_box, Bar);
 
                     // Sync sliders with radio values
                     // Detach event handlers to prevent sending commands when setting values
@@ -281,15 +279,6 @@ namespace The101Box
                     // Read and set RF gain slider (inverted)
                     IssueCmd("RG0;");
                     temp = Serial_Port.ReadTo(";");
-                    if (temp.Length >= 5)
-                    {
-                        string rgValueStr = temp.Substring(3, 3);
-                        if (int.TryParse(rgValueStr, out int rgValue))
-                        {
-                            int sliderValue = rfGainTrackBar.Maximum - rgValue;
-                            rfGainTrackBar.Value = Math.Max(rfGainTrackBar.Minimum, Math.Min(rfGainTrackBar.Maximum, sliderValue));
-                        }
-                    }
 
                     // Read and set volume slider
                     IssueCmd("AG0;");
@@ -306,6 +295,35 @@ namespace The101Box
                     // Reattach event handlers
                     rfGainTrackBar.ValueChanged += RfGainTrackBar_ValueChanged;
                     volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
+
+                    IssueCmd("FA;");
+                    temp = Serial_Port.ReadTo(";");
+                    string mainFreq = "???";
+                    if (temp.Length >= 4) // FA + at least 1 digit + ;
+                    {
+                        string freqStr = temp.Substring(2, temp.Length - 3); // Extract digits between FA and ;
+                        if (long.TryParse(freqStr, out long freqHz))
+                        {
+                            double freqMHz = freqHz / 100000.0; // Divide by 1,000,000 for MHz
+                            mainFreq = freqMHz.ToString("F3"); // Format to 3 decimal places
+                        }
+                    }
+
+                    IssueCmd("FB;");
+                    temp = Serial_Port.ReadTo(";");
+                    string subFreq = "???";
+                    if (temp.Length >= 4) // FB + at least 1 digit + ;
+                    {
+                        string freqStr = temp.Substring(2, temp.Length - 3); // Extract digits between FB and ;
+                        if (long.TryParse(freqStr, out long freqHz))
+                        {
+                            double freqMHz = freqHz / 100000.0; // Divide by 1,000,000 for MHz
+                            subFreq = freqMHz.ToString("F3"); // Format to 3 decimal places
+                        }
+                    }
+
+                    UpdateTextBox(FreqM_box, $"M: {mainFreq} MHz");
+                    UpdateTextBox(FreqS_box, $"S: {subFreq} MHz");
 
                     await Task.Delay(100, cts.Token);
                 }
@@ -343,13 +361,6 @@ namespace The101Box
             }
         }
 
-        private void StartButton_Click(object sender, MouseEventArgs e)
-        {
-            cts.Cancel();
-            cts = new CancellationTokenSource();
-            Task.Run(() => DoThisLoopAsync());
-        }
-
         private void TextBox1_TextChanged(object sender, EventArgs e) { }
         private void TextBox2_TextChanged(object sender, EventArgs e) { }
 
@@ -361,8 +372,20 @@ namespace The101Box
 
         private void VN_on(object sender, MouseEventArgs e) { IssueCmd("VT0100;"); }
         private void VC_off(object sender, MouseEventArgs e) { IssueCmd("VT0000;"); }
-        private void RF_click(object sender, MouseEventArgs e) { IssueCmd("EX0301070;"); }
-        private void SQL_click(object sender, MouseEventArgs e) { IssueCmd("EX0301071;"); }
+        private void RFB_click(object sender, MouseEventArgs e)
+        {
+            rfSqlOn = !rfSqlOn;
+            if (rfSqlOn)
+            {
+                IssueCmd("EX0301071;"); // Squelch
+                RFSQL_box.Text = "Squelch";
+            }
+            else
+            {
+                IssueCmd("EX0301070;"); // RF
+                RFSQL_box.Text = "RF";
+            }
+        }
         private void TuneButton_MouseDown(object sender, MouseEventArgs e)
         {
             IssueCmd("MD0;");
@@ -453,6 +476,21 @@ namespace The101Box
         {
             string value = ((TrackBar)sender).Value.ToString("D3");
             IssueCmd($"AG0{value};");
+        }
+
+        private void VCTOGGLE_click(object sender, MouseEventArgs e)
+        {
+            vcOn = !vcOn;
+            if (vcOn)
+            {
+                IssueCmd("VT0100;"); // VC on
+                VCTOGGLE.Text = "VC on";
+            }
+            else
+            {
+                IssueCmd("VT0000;"); // VC off
+                VCTOGGLE.Text = "VC off";
+            }
         }
     }
 }
