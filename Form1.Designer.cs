@@ -68,6 +68,7 @@
             FreqS_box = new System.Windows.Forms.TextBox();
             textBox1 = new System.Windows.Forms.TextBox();
             textBox2 = new System.Windows.Forms.TextBox();
+            BUSY_box = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).BeginInit();
             SuspendLayout();
@@ -91,9 +92,10 @@
             // TEMP_box
             // 
             TEMP_box.BackColor = System.Drawing.Color.Black;
+            TEMP_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             TEMP_box.Font = new System.Drawing.Font("Verdana", 10F, System.Drawing.FontStyle.Bold);
             TEMP_box.ForeColor = System.Drawing.Color.Cyan;
-            TEMP_box.Location = new System.Drawing.Point(770, 103);
+            TEMP_box.Location = new System.Drawing.Point(775, 105);
             TEMP_box.Margin = new System.Windows.Forms.Padding(0);
             TEMP_box.Multiline = true;
             TEMP_box.Name = "TEMP_box";
@@ -113,7 +115,7 @@
             TuneButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Blue;
             TuneButton.Font = new System.Drawing.Font("Verdana", 8.25F, System.Drawing.FontStyle.Bold);
             TuneButton.ForeColor = System.Drawing.Color.Yellow;
-            TuneButton.Location = new System.Drawing.Point(756, 1);
+            TuneButton.Location = new System.Drawing.Point(756, 2);
             TuneButton.Name = "TuneButton";
             TuneButton.Size = new System.Drawing.Size(85, 102);
             TuneButton.TabIndex = 8;
@@ -670,7 +672,7 @@
             // textBox1
             // 
             textBox1.BackColor = System.Drawing.Color.Black;
-            textBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             textBox1.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold);
             textBox1.ForeColor = System.Drawing.Color.Cyan;
             textBox1.Location = new System.Drawing.Point(843, 106);
@@ -687,7 +689,7 @@
             // textBox2
             // 
             textBox2.BackColor = System.Drawing.Color.Black;
-            textBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
             textBox2.Font = new System.Drawing.Font("Verdana", 8F, System.Drawing.FontStyle.Bold);
             textBox2.ForeColor = System.Drawing.Color.Cyan;
             textBox2.Location = new System.Drawing.Point(890, 106);
@@ -701,12 +703,28 @@
             textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox2.WordWrap = false;
             // 
+            // BUSY_box
+            // 
+            BUSY_box.BackColor = System.Drawing.Color.Black;
+            BUSY_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            BUSY_box.ForeColor = System.Drawing.Color.FromArgb(64, 64, 64);
+            BUSY_box.Location = new System.Drawing.Point(830, 107);
+            BUSY_box.Margin = new System.Windows.Forms.Padding(1);
+            BUSY_box.Multiline = true;
+            BUSY_box.Name = "BUSY_box";
+            BUSY_box.Size = new System.Drawing.Size(8, 8);
+            BUSY_box.TabIndex = 48;
+            BUSY_box.Text = "█";
+            BUSY_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            BUSY_box.WordWrap = false;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = System.Drawing.Color.Black;
             ClientSize = new System.Drawing.Size(934, 125);
+            Controls.Add(BUSY_box);
             Controls.Add(textBox2);
             Controls.Add(textBox1);
             Controls.Add(FreqS_box);
@@ -805,6 +823,7 @@
         private System.Windows.Forms.TextBox FreqS_box;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox BUSY_box;
     }
 }
 

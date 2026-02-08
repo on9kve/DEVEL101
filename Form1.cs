@@ -271,6 +271,11 @@ namespace The101Box
                         _ => "???"
                     };
 
+                    string Blokje = "█";
+                    Bar = (Bar == Blokje) ? " " : Blokje;
+
+
+
                     // Update UI
                     UpdateTextBox(TEMP_box, $"{TempD:00}°C", Color.FromName(FColorB));
                     UpdateTextBox(RFSQL_box, RfsqlD);
@@ -281,11 +286,8 @@ namespace The101Box
                     UpdateTextBox(ANT_box, DspantD);
                     UpdateTextBox(IPO_box, DspipoD);
                     UpdateTextBox(RX_box, DspRxD);
+                    UpdateTextBox(BUSY_box, Bar);
 
-                    //--- Example of building a bar graph for RF gain (not currently used in UI)       leave it !            
-                    //                  string Blokje = "■";
-                    //                  Bar = Bar.Length < 7 ? Bar + Blokje : Blokje;
-                    //                  UpdateTextBox(VC_box, Bar);
 
                     // Sync sliders with radio values
                     // Detach event handlers to prevent sending commands when setting values
