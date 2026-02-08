@@ -292,9 +292,19 @@ namespace The101Box
                     rfGainTrackBar.ValueChanged -= RfGainTrackBar_ValueChanged;
                     volumeGainTrackBar.ValueChanged -= VolumeGainTrackBar_ValueChanged;
 
-                    // Read and set RF gain slider (inverted)
+                    // Read and set RF gain slider
                     IssueCmd("RG0;");
                     temp = Serial_Port.ReadTo(";");
+                    if (temp.Length >= 5)
+                    {
+                        string rgValueStr = temp.Substring(3, 3); // Extract the RF gain value
+                        if (int.TryParse(rgValueStr, out int rgValue))
+                        {
+                            int sliderValue = rfGainTrackBar.Maximum - rgValue; // Invert the value for the slider
+                            rfGainTrackBar.Value = Math.Max(rfGainTrackBar.Minimum, Math.Min(rfGainTrackBar.Maximum, sliderValue));
+                            UpdateTextBox(textBox1, sliderValue.ToString("D3")); // Display the slider value in textBox1
+                        }
+                    }
 
                     // Read and set volume slider
                     IssueCmd("AG0;");
@@ -305,6 +315,7 @@ namespace The101Box
                         if (int.TryParse(agValueStr, out int agValue))
                         {
                             volumeGainTrackBar.Value = Math.Max(volumeGainTrackBar.Minimum, Math.Min(volumeGainTrackBar.Maximum, agValue));
+                            UpdateTextBox(textBox2, agValueStr); // Display the Volume gain value in TextBox2
                         }
                     }
 
@@ -481,9 +492,10 @@ namespace The101Box
 
         private void RfGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
-            int invertedValue = rfGainTrackBar.Maximum - rfGainTrackBar.Value;
-            string value = invertedValue.ToString("D3");
-            IssueCmd($"RG0{value};");
+            int displayedValue = rfGainTrackBar.Value; // Directly use the slider value for display
+            string value = displayedValue.ToString("D3");
+            UpdateTextBox(textBox1, value); // Display the value in textBox1
+            IssueCmd($"RG0{(rfGainTrackBar.Maximum - displayedValue):D3};"); // Send inverted value to the radio
         }
 
         private void VolumeGainTrackBar_ValueChanged(object sender, EventArgs e)
@@ -497,12 +509,12 @@ namespace The101Box
             vcOn = !vcOn;
             if (vcOn)
             {
-                IssueCmd("VT01;"); // VC on (main receiver)
+                IssueCmd("VT0100;"); // VC on (main receiver)
                 VC_box.Text = "VC on";
             }
             else
             {
-                IssueCmd("VT00;"); // VC off (main receiver)
+                IssueCmd("VT0000;"); // VC off (main receiver)
                 VC_box.Text = "VC off";
             }
         }
