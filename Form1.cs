@@ -215,7 +215,7 @@ namespace The101Box
                             "1" => "LSB",
                             "2" => "USB",
                             "3" => "CW",
-                            _ => "???"
+                            _ => "???",
                         };
                     }
                     else
@@ -333,8 +333,8 @@ namespace The101Box
                         string freqStr = temp.Substring(2, temp.Length - 3); // Extract digits between FA and ;
                         if (long.TryParse(freqStr, out long freqHz))
                         {
-                            double freqMHz = freqHz / 100000.0; // Divide by 1,000,000 for MHz
-                            mainFreq = freqMHz.ToString("F3"); // Format to 3 decimal places
+                            double freqMHz = freqHz / 100000.0; // Correct divisor for this radio
+                            mainFreq = $"{freqMHz,9:F3}"; // Right-align in 9 characters with 3 decimals
                         }
                     }
 
@@ -346,13 +346,13 @@ namespace The101Box
                         string freqStr = temp.Substring(2, temp.Length - 3); // Extract digits between FB and ;
                         if (long.TryParse(freqStr, out long freqHz))
                         {
-                            double freqMHz = freqHz / 100000.0; // Divide by 1,000,000 for MHz
-                            subFreq = freqMHz.ToString("F3"); // Format to 3 decimal places
+                            double freqMHz = freqHz / 100000.0; // Correct divisor for this radio
+                            subFreq = $"{freqMHz,9:F3}"; // Right-align in 9 characters with 3 decimals
                         }
                     }
 
-                    UpdateTextBox(FreqM_box, $"M: {mainFreq} MHz");
-                    UpdateTextBox(FreqS_box, $"S: {subFreq} MHz");
+                    UpdateTextBox(FreqM_box, $"MAIN:{mainFreq} MHz");
+                    UpdateTextBox(FreqS_box, $"SUB :{subFreq} MHz");
 
                     await Task.Delay(100, cts.Token);
                 }

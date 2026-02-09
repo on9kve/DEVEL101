@@ -642,7 +642,7 @@
             // FreqM_box
             // 
             FreqM_box.BackColor = System.Drawing.Color.DarkGreen;
-            FreqM_box.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold);
+            FreqM_box.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             FreqM_box.ForeColor = System.Drawing.Color.Yellow;
             FreqM_box.Location = new System.Drawing.Point(2, 1);
             FreqM_box.Multiline = true;
@@ -650,14 +650,14 @@
             FreqM_box.Size = new System.Drawing.Size(166, 33);
             FreqM_box.TabIndex = 44;
             FreqM_box.TabStop = false;
-            FreqM_box.Text = "M:   00.000";
+            FreqM_box.Text = "MAIN";
             FreqM_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             FreqM_box.WordWrap = false;
             // 
             // FreqS_box
             // 
             FreqS_box.BackColor = System.Drawing.Color.DarkGreen;
-            FreqS_box.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
+            FreqS_box.Font = new System.Drawing.Font("Consolas", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, 0);
             FreqS_box.ForeColor = System.Drawing.Color.Yellow;
             FreqS_box.Location = new System.Drawing.Point(2, 36);
             FreqS_box.Multiline = true;
@@ -665,7 +665,7 @@
             FreqS_box.Size = new System.Drawing.Size(166, 33);
             FreqS_box.TabIndex = 45;
             FreqS_box.TabStop = false;
-            FreqS_box.Text = "S:   00.000";
+            FreqS_box.Text = "SUB";
             FreqS_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             FreqS_box.WordWrap = false;
             // 
