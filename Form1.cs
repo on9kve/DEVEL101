@@ -23,7 +23,6 @@ namespace The101Box
         public decimal TempD, tempnum, Rfsqlnum, Dsppodnum, SecondNum;
 
         private CancellationTokenSource cts = new();
-        private bool vcOn = false; // Add toggle state
         private bool rfSqlOn = false; // false for RF, true for Squelch
 
         public MainForm()
@@ -454,6 +453,7 @@ namespace The101Box
         {
             if (e.Button == MouseButtons.Right) IssueCmd("FR11;");
         }
+        private void RX12off_click(object sender, MouseEventArgs e) { IssueCmd("FR11;"); }
         private void SSB1_click(object sender, MouseEventArgs e) { IssueCmd("SS0560000;"); }
         private void SSB2_click(object sender, MouseEventArgs e) { IssueCmd("SS0570000;"); }
         private void SSB3_click(object sender, MouseEventArgs e) { IssueCmd("SS0580000;"); }
