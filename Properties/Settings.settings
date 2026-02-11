@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="SerialPort" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">COM4</Value>
     </Setting>
   </Settings>
 </SettingsFile>

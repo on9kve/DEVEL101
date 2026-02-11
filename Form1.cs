@@ -317,6 +317,33 @@ namespace The101Box
                     volumeGainTrackBar.ValueChanged += VolumeGainTrackBar_ValueChanged;
                     pwrControlTrackBar.ValueChanged += PwrControlTrackBar_ValueChanged;
 
+                    // Read and set Sub RF gain slider
+                    IssueCmd("RG1;");
+                    temp = Serial_Port.ReadTo(";");
+                    if (temp.Length >= 5)
+                    {
+                        string rgValueStr = temp.Substring(3, 3); // Extract the Sub RF gain value
+                        if (int.TryParse(rgValueStr, out int rgValue))
+                        {
+                            int sliderValue = SubrfGainTrackBar.Maximum - rgValue; // Invert the value for the slider
+                            SubrfGainTrackBar.Value = Math.Max(SubrfGainTrackBar.Minimum, Math.Min(SubrfGainTrackBar.Maximum, sliderValue));
+                            UpdateTextBox(textBox5, sliderValue.ToString("D3")); // Display the slider value in textBox5
+                        }
+                    }
+
+                    // Read and set Sub volume slider
+                    IssueCmd("AG1;");
+                    temp = Serial_Port.ReadTo(";");
+                    if (temp.Length >= 5)
+                    {
+                        string agValueStr = temp.Substring(3, 3);
+                        if (int.TryParse(agValueStr, out int agValue))
+                        {
+                            SubvolumeGainTrackBar.Value = Math.Max(SubvolumeGainTrackBar.Minimum, Math.Min(SubvolumeGainTrackBar.Maximum, agValue));
+                            UpdateTextBox(textBox6, agValueStr); // Display the Sub volume value in textBox6
+                        }
+                    }
+
                     IssueCmd("FA;");
                     temp = Serial_Port.ReadTo(";");
                     string mainFreq = "???";
@@ -623,15 +650,19 @@ namespace The101Box
                         DropDownStyle = ComboBoxStyle.DropDownList,
                         Height = 30
                     };
-                    combo.DataSource = ports.ToList();
                     
-                    // Pre-select the saved port if it exists
+                    // Add items directly instead of using DataSource
+                    combo.Items.AddRange(ports);
+                    
+                    // Pre-select the saved port
                     string savedPort = Properties.Settings.Default.SerialPort;
-                    if (!string.IsNullOrEmpty(savedPort) && ports.Contains(savedPort))
+                    int savedIndex = System.Array.IndexOf(ports, savedPort);
+                    
+                    if (savedIndex >= 0)
                     {
-                        combo.SelectedItem = savedPort;
+                        combo.SelectedIndex = savedIndex;
                     }
-                    else if (combo.Items.Count > 0)
+                    else
                     {
                         combo.SelectedIndex = 0;
                     }
