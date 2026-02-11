@@ -493,6 +493,21 @@ namespace The101Box
             }
         }
 
+        private void RFB_click_1(object sender, MouseEventArgs e)
+        {
+            rfSqlOn = !rfSqlOn;
+            if (rfSqlOn)
+            {
+                IssueCmd("EX0301071;"); // Squelch
+                RFSQL_box.Text = "Squelch";
+            }
+            else
+            {
+                IssueCmd("EX0301070;"); // RF
+                RFSQL_box.Text = "RF";
+            }
+        }
+
         private void RfGainTrackBar_ValueChanged(object sender, EventArgs e)
         {
             int displayedValue = rfGainTrackBar.Value; // Directly use the slider value for display
@@ -565,7 +580,7 @@ namespace The101Box
                 // Filter to COM0-COM20
                 string[] ports = allPorts
                     .Where(p => p.StartsWith("COM") && int.TryParse(p.Substring(3), out int portNum) && portNum >= 0 && portNum <= 20)
-                    .OrderBy(p => int.Parse(p.Substring(3)))  // Sort numerically
+                    .OrderBy(p => int.Parse(p.Substring(3)))
                     .ToArray();
                 
                 if (ports.Length == 0)
@@ -583,7 +598,7 @@ namespace The101Box
                     return selectedPort;
                 }
                 
-                // Multiple ports - show selection dialog
+                // Multiple ports - ALWAYS show selection dialog
                 using (var form = new Form())
                 {
                     form.Text = "Select Serial Port";
