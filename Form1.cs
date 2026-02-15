@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 // 
-// Version : 16-x (09 feb 26); 
+// Version : 17-x (15 feb 26); 
 // Name    : The101Box Yaesu FTDX101 @ COMx
 
 
@@ -50,7 +50,7 @@ namespace The101Box
             string portName = SelectSerialPort();
             
             // Update form title with selected COM port
-            this.Text = $"The101Box v 16 - by Kees, ON9KVE - {portName}";
+            this.Text = $"The101Box v 17 - by Kees, ON9KVE - {portName}";
             
             Serial_Port = new SerialPort(portName, 38400, Parity.None, 8, StopBits.Two)
             {
@@ -373,6 +373,23 @@ namespace The101Box
                     UpdateTextBox(FreqM_box, $"MAIN:{mainFreq} MHz");
                     UpdateTextBox(FreqS_box, $"SUB :{subFreq} MHz");
 
+                    // Read and set internal tuner status
+                    IssueCmd("AC;");
+                    temp = Serial_Port.ReadTo(";");
+                    if (temp.Length >= 5 && temp.StartsWith("AC"))
+                    {
+                        // Response is ACxyz; we are interested in z at index 4
+                        char tunerStatus = temp[4];
+                        if (tunerStatus == '0')
+                        {
+                            UpdateTextBox(textBox4, "TUNE OFF", Color.Cyan);
+                        }
+                        else if (tunerStatus == '1')
+                        {
+                            UpdateTextBox(textBox4, "TUNE ON", Color.Red);
+                        }
+                    }
+
                     await Task.Delay(100, cts.Token);
                 }
                 catch (Exception ex)
@@ -600,6 +617,7 @@ namespace The101Box
 
         private string SelectSerialPort()
         {
+            string appNamespace = typeof(MainForm).Namespace;
             try
             {
                 string[] allPorts = SerialPort.GetPortNames();
@@ -612,7 +630,7 @@ namespace The101Box
                 
                 if (ports.Length == 0)
                 {
-                    MessageBox.Show("No serial ports (COM0-COM20) found!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("No serial ports (COM0-COM20) found!", $"{appNamespace} - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return "COM4";
                 }
                 
@@ -621,14 +639,14 @@ namespace The101Box
                     string selectedPort = ports[0];
                     Properties.Settings.Default.SerialPort = selectedPort;
                     Properties.Settings.Default.Save();
-                    MessageBox.Show($"Using port: {selectedPort}", "Serial Port", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show($"Using port: {selectedPort}", $"{appNamespace} - Serial Port", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return selectedPort;
                 }
                 
                 // Multiple ports - ALWAYS show selection dialog
                 using (var form = new Form())
                 {
-                    form.Text = "Select Serial Port";
+                    form.Text = $"{appNamespace} - Select Serial Port";
                     form.Width = 250;
                     form.Height = 150;
                     form.StartPosition = FormStartPosition.CenterScreen;
@@ -693,7 +711,7 @@ namespace The101Box
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error: {ex.Message}", $"{appNamespace} - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return "COM4";
             }
         }

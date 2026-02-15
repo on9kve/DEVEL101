@@ -1067,7 +1067,6 @@ namespace The101Box
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "MainForm";
-            Text = "The101Box v 16 - by Kees, ON9KVE -";
             TransparencyKey = Color.Fuchsia;
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).EndInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).EndInit();
