@@ -30,7 +30,6 @@ namespace DEVEL101
         /// </summary>
         private void InitializeComponent()
         {
-            RFSQL_box = new System.Windows.Forms.TextBox();
             TEMP_box = new System.Windows.Forms.TextBox();
             ExtTuneButton = new System.Windows.Forms.Button();
             CursorB = new System.Windows.Forms.Button();
@@ -39,24 +38,18 @@ namespace DEVEL101
             LSBB = new System.Windows.Forms.Button();
             CWB = new System.Windows.Forms.Button();
             RFTOGGLE = new System.Windows.Forms.Button();
-            DSPMOD_box = new System.Windows.Forms.TextBox();
-            MODE_box = new System.Windows.Forms.TextBox();
             ANT1B = new System.Windows.Forms.Button();
             ANT2B = new System.Windows.Forms.Button();
             ANT3RXB = new System.Windows.Forms.Button();
             IPOB = new System.Windows.Forms.Button();
             AMP1B = new System.Windows.Forms.Button();
             AMP2B = new System.Windows.Forms.Button();
-            ANT_box = new System.Windows.Forms.TextBox();
-            IPO_box = new System.Windows.Forms.TextBox();
             RX1B = new System.Windows.Forms.Button();
             RX2 = new System.Windows.Forms.Button();
             RX12B = new System.Windows.Forms.Button();
-            RX_box = new System.Windows.Forms.TextBox();
             SSB1 = new System.Windows.Forms.Button();
             SSB2 = new System.Windows.Forms.Button();
             SSB3 = new System.Windows.Forms.Button();
-            DSPSPAN_box = new System.Windows.Forms.TextBox();
             FixB = new System.Windows.Forms.Button();
             rfGainTrackBar = new System.Windows.Forms.TrackBar();
             volumeGainTrackBar = new System.Windows.Forms.TrackBar();
@@ -76,7 +69,6 @@ namespace DEVEL101
             IntTune = new System.Windows.Forms.Button();
             ItuneOn = new System.Windows.Forms.Button();
             ItuneOff = new System.Windows.Forms.Button();
-            textBox4 = new System.Windows.Forms.TextBox();
             SubrfGainTrackBar = new System.Windows.Forms.TrackBar();
             SubvolumeGainTrackBar = new System.Windows.Forms.TrackBar();
             textBox5 = new System.Windows.Forms.TextBox();
@@ -88,6 +80,8 @@ namespace DEVEL101
             SubrfGainLabel = new System.Windows.Forms.Label();
             SubvolumeGainLabel = new System.Windows.Forms.Label();
             RX12off = new System.Windows.Forms.Button();
+            comPortComboBox = new System.Windows.Forms.ComboBox();
+            ConnectToggleButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).BeginInit();
@@ -95,29 +89,13 @@ namespace DEVEL101
             ((System.ComponentModel.ISupportInitialize)SubvolumeGainTrackBar).BeginInit();
             SuspendLayout();
             // 
-            // RFSQL_box
-            // 
-            RFSQL_box.BackColor = Color.Black;
-            RFSQL_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            RFSQL_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            RFSQL_box.ForeColor = Color.Cyan;
-            RFSQL_box.Location = new Point(84, 103);
-            RFSQL_box.Margin = new System.Windows.Forms.Padding(0);
-            RFSQL_box.Name = "RFSQL_box";
-            RFSQL_box.Size = new Size(84, 18);
-            RFSQL_box.TabIndex = 4;
-            RFSQL_box.TabStop = false;
-            RFSQL_box.Text = "<RF/SQL>";
-            RFSQL_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            RFSQL_box.TextChanged += TextBox2_TextChanged;
-            // 
             // TEMP_box
             // 
             TEMP_box.BackColor = Color.Black;
             TEMP_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
             TEMP_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            TEMP_box.ForeColor = Color.Cyan;
-            TEMP_box.Location = new Point(20, 103);
+            TEMP_box.ForeColor = Color.YellowGreen;
+            TEMP_box.Location = new Point(1090, 91);
             TEMP_box.Margin = new System.Windows.Forms.Padding(0);
             TEMP_box.Multiline = true;
             TEMP_box.Name = "TEMP_box";
@@ -137,13 +115,12 @@ namespace DEVEL101
             ExtTuneButton.FlatAppearance.MouseOverBackColor = Color.Blue;
             ExtTuneButton.Font = new Font("Verdana", 8.25F, FontStyle.Bold);
             ExtTuneButton.ForeColor = Color.Yellow;
-            ExtTuneButton.Location = new Point(824, 70);
+            ExtTuneButton.Location = new Point(880, 83);
             ExtTuneButton.Name = "ExtTuneButton";
-            ExtTuneButton.Size = new Size(86, 33);
+            ExtTuneButton.Size = new Size(88, 40);
             ExtTuneButton.TabIndex = 8;
             ExtTuneButton.Text = "Ext Tuner";
             ExtTuneButton.UseVisualStyleBackColor = false;
-            // MouseDown / MouseUp wired in InitializeTrackBarEvents()
             // 
             // CursorB
             // 
@@ -153,9 +130,9 @@ namespace DEVEL101
             CursorB.FlatAppearance.MouseOverBackColor = Color.Blue;
             CursorB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             CursorB.ForeColor = Color.Yellow;
-            CursorB.Location = new Point(506, 0);
+            CursorB.Location = new Point(549, 1);
             CursorB.Name = "CursorB";
-            CursorB.Size = new Size(85, 35);
+            CursorB.Size = new Size(88, 40);
             CursorB.TabIndex = 9;
             CursorB.Text = "CURSOR";
             CursorB.UseVisualStyleBackColor = false;
@@ -169,9 +146,9 @@ namespace DEVEL101
             CenterB.FlatAppearance.MouseOverBackColor = Color.Blue;
             CenterB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             CenterB.ForeColor = Color.Yellow;
-            CenterB.Location = new Point(506, 34);
+            CenterB.Location = new Point(549, 42);
             CenterB.Name = "CenterB";
-            CenterB.Size = new Size(85, 35);
+            CenterB.Size = new Size(88, 40);
             CenterB.TabIndex = 10;
             CenterB.Text = "CENTER";
             CenterB.UseVisualStyleBackColor = false;
@@ -185,9 +162,9 @@ namespace DEVEL101
             USBB.FlatAppearance.MouseOverBackColor = Color.Blue;
             USBB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             USBB.ForeColor = Color.Yellow;
-            USBB.Location = new Point(421, 0);
+            USBB.Location = new Point(456, 1);
             USBB.Name = "USBB";
-            USBB.Size = new Size(44, 35);
+            USBB.Size = new Size(44, 40);
             USBB.TabIndex = 11;
             USBB.Text = "USB";
             USBB.UseVisualStyleBackColor = false;
@@ -201,9 +178,9 @@ namespace DEVEL101
             LSBB.FlatAppearance.MouseOverBackColor = Color.Blue;
             LSBB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             LSBB.ForeColor = Color.Yellow;
-            LSBB.Location = new Point(464, 0);
+            LSBB.Location = new Point(500, 1);
             LSBB.Name = "LSBB";
-            LSBB.Size = new Size(44, 35);
+            LSBB.Size = new Size(44, 40);
             LSBB.TabIndex = 12;
             LSBB.Text = "LSB";
             LSBB.UseVisualStyleBackColor = false;
@@ -217,9 +194,9 @@ namespace DEVEL101
             CWB.FlatAppearance.MouseOverBackColor = Color.Blue;
             CWB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             CWB.ForeColor = Color.Yellow;
-            CWB.Location = new Point(421, 68);
+            CWB.Location = new Point(456, 83);
             CWB.Name = "CWB";
-            CWB.Size = new Size(44, 35);
+            CWB.Size = new Size(44, 40);
             CWB.TabIndex = 13;
             CWB.Text = "CW";
             CWB.UseVisualStyleBackColor = false;
@@ -233,43 +210,13 @@ namespace DEVEL101
             RFTOGGLE.FlatAppearance.MouseOverBackColor = Color.Blue;
             RFTOGGLE.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             RFTOGGLE.ForeColor = Color.Yellow;
-            RFTOGGLE.Location = new Point(84, 68);
+            RFTOGGLE.Location = new Point(1073, 42);
             RFTOGGLE.Name = "RFTOGGLE";
-            RFTOGGLE.Size = new Size(86, 35);
+            RFTOGGLE.Size = new Size(88, 40);
             RFTOGGLE.TabIndex = 20;
             RFTOGGLE.Text = "RF / SQL";
             RFTOGGLE.UseVisualStyleBackColor = false;
             RFTOGGLE.MouseClick += RFB_click;
-            // 
-            // DSPMOD_box
-            // 
-            DSPMOD_box.BackColor = Color.Black;
-            DSPMOD_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            DSPMOD_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            DSPMOD_box.ForeColor = Color.Cyan;
-            DSPMOD_box.Location = new Point(506, 103);
-            DSPMOD_box.Margin = new System.Windows.Forms.Padding(0);
-            DSPMOD_box.Name = "DSPMOD_box";
-            DSPMOD_box.Size = new Size(84, 18);
-            DSPMOD_box.TabIndex = 22;
-            DSPMOD_box.TabStop = false;
-            DSPMOD_box.Text = "<DSPMOD>";
-            DSPMOD_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // MODE_box
-            // 
-            MODE_box.BackColor = Color.Black;
-            MODE_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            MODE_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            MODE_box.ForeColor = Color.Cyan;
-            MODE_box.Location = new Point(425, 103);
-            MODE_box.Margin = new System.Windows.Forms.Padding(0);
-            MODE_box.Name = "MODE_box";
-            MODE_box.Size = new Size(84, 18);
-            MODE_box.TabIndex = 23;
-            MODE_box.TabStop = false;
-            MODE_box.Text = "<MODE>";
-            MODE_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // ANT1B
             // 
@@ -279,9 +226,9 @@ namespace DEVEL101
             ANT1B.FlatAppearance.MouseOverBackColor = Color.Blue;
             ANT1B.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ANT1B.ForeColor = Color.Yellow;
-            ANT1B.Location = new Point(253, 0);
+            ANT1B.Location = new Point(275, 1);
             ANT1B.Name = "ANT1B";
-            ANT1B.Size = new Size(85, 35);
+            ANT1B.Size = new Size(88, 40);
             ANT1B.TabIndex = 25;
             ANT1B.Text = "ANT1";
             ANT1B.UseVisualStyleBackColor = false;
@@ -295,9 +242,9 @@ namespace DEVEL101
             ANT2B.FlatAppearance.MouseOverBackColor = Color.Blue;
             ANT2B.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ANT2B.ForeColor = Color.Yellow;
-            ANT2B.Location = new Point(253, 34);
+            ANT2B.Location = new Point(275, 43);
             ANT2B.Name = "ANT2B";
-            ANT2B.Size = new Size(85, 35);
+            ANT2B.Size = new Size(88, 40);
             ANT2B.TabIndex = 26;
             ANT2B.Text = "ANT2";
             ANT2B.UseVisualStyleBackColor = false;
@@ -311,9 +258,9 @@ namespace DEVEL101
             ANT3RXB.FlatAppearance.MouseOverBackColor = Color.Blue;
             ANT3RXB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ANT3RXB.ForeColor = Color.Yellow;
-            ANT3RXB.Location = new Point(253, 68);
+            ANT3RXB.Location = new Point(275, 83);
             ANT3RXB.Name = "ANT3RXB";
-            ANT3RXB.Size = new Size(85, 35);
+            ANT3RXB.Size = new Size(88, 40);
             ANT3RXB.TabIndex = 27;
             ANT3RXB.Text = "ANT3/RX";
             ANT3RXB.UseVisualStyleBackColor = false;
@@ -327,9 +274,9 @@ namespace DEVEL101
             IPOB.FlatAppearance.MouseOverBackColor = Color.Blue;
             IPOB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             IPOB.ForeColor = Color.Yellow;
-            IPOB.Location = new Point(337, 0);
+            IPOB.Location = new Point(363, 1);
             IPOB.Name = "IPOB";
-            IPOB.Size = new Size(85, 35);
+            IPOB.Size = new Size(88, 40);
             IPOB.TabIndex = 28;
             IPOB.Text = "IPO";
             IPOB.UseVisualStyleBackColor = false;
@@ -343,9 +290,9 @@ namespace DEVEL101
             AMP1B.FlatAppearance.MouseOverBackColor = Color.Blue;
             AMP1B.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             AMP1B.ForeColor = Color.Yellow;
-            AMP1B.Location = new Point(337, 34);
+            AMP1B.Location = new Point(363, 42);
             AMP1B.Name = "AMP1B";
-            AMP1B.Size = new Size(85, 35);
+            AMP1B.Size = new Size(88, 40);
             AMP1B.TabIndex = 29;
             AMP1B.Text = "AMP1";
             AMP1B.UseVisualStyleBackColor = false;
@@ -359,43 +306,13 @@ namespace DEVEL101
             AMP2B.FlatAppearance.MouseOverBackColor = Color.Blue;
             AMP2B.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             AMP2B.ForeColor = Color.Yellow;
-            AMP2B.Location = new Point(337, 68);
+            AMP2B.Location = new Point(363, 83);
             AMP2B.Name = "AMP2B";
-            AMP2B.Size = new Size(85, 35);
+            AMP2B.Size = new Size(88, 40);
             AMP2B.TabIndex = 30;
             AMP2B.Text = "AMP2";
             AMP2B.UseVisualStyleBackColor = false;
             AMP2B.MouseClick += AMP2B_click;
-            // 
-            // ANT_box
-            // 
-            ANT_box.BackColor = Color.Black;
-            ANT_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            ANT_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            ANT_box.ForeColor = Color.Cyan;
-            ANT_box.Location = new Point(253, 103);
-            ANT_box.Margin = new System.Windows.Forms.Padding(0);
-            ANT_box.Name = "ANT_box";
-            ANT_box.Size = new Size(84, 18);
-            ANT_box.TabIndex = 31;
-            ANT_box.TabStop = false;
-            ANT_box.Text = "<ANT>";
-            ANT_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // IPO_box
-            // 
-            IPO_box.BackColor = Color.Black;
-            IPO_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            IPO_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            IPO_box.ForeColor = Color.Cyan;
-            IPO_box.Location = new Point(337, 103);
-            IPO_box.Margin = new System.Windows.Forms.Padding(0);
-            IPO_box.Name = "IPO_box";
-            IPO_box.Size = new Size(84, 18);
-            IPO_box.TabIndex = 32;
-            IPO_box.TabStop = false;
-            IPO_box.Text = "<IPO>";
-            IPO_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // RX1B
             // 
@@ -403,13 +320,13 @@ namespace DEVEL101
             RX1B.FlatAppearance.BorderColor = Color.White;
             RX1B.FlatAppearance.MouseDownBackColor = Color.Red;
             RX1B.FlatAppearance.MouseOverBackColor = Color.Blue;
-            RX1B.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            RX1B.Font = new Font("Verdana", 6.75F, FontStyle.Bold);
             RX1B.ForeColor = Color.Yellow;
-            RX1B.Location = new Point(168, 0);
+            RX1B.Location = new Point(182, 1);
             RX1B.Name = "RX1B";
-            RX1B.Size = new Size(44, 35);
+            RX1B.Size = new Size(44, 40);
             RX1B.TabIndex = 33;
-            RX1B.Text = "RX 1";
+            RX1B.Text = "MAIN";
             RX1B.UseVisualStyleBackColor = false;
             RX1B.MouseClick += RX1B_click;
             // 
@@ -419,13 +336,13 @@ namespace DEVEL101
             RX2.FlatAppearance.BorderColor = Color.White;
             RX2.FlatAppearance.MouseDownBackColor = Color.Red;
             RX2.FlatAppearance.MouseOverBackColor = Color.Blue;
-            RX2.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            RX2.Font = new Font("Verdana", 7F, FontStyle.Bold);
             RX2.ForeColor = Color.Yellow;
-            RX2.Location = new Point(210, 0);
+            RX2.Location = new Point(226, 1);
             RX2.Name = "RX2";
-            RX2.Size = new Size(44, 35);
+            RX2.Size = new Size(44, 40);
             RX2.TabIndex = 34;
-            RX2.Text = "RX 2";
+            RX2.Text = "SUB";
             RX2.UseVisualStyleBackColor = false;
             RX2.MouseClick += RX2B_click;
             // 
@@ -437,30 +354,14 @@ namespace DEVEL101
             RX12B.FlatAppearance.MouseOverBackColor = Color.Blue;
             RX12B.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             RX12B.ForeColor = Color.Yellow;
-            RX12B.Location = new Point(168, 34);
+            RX12B.Location = new Point(182, 42);
             RX12B.Name = "RX12B";
-            RX12B.Size = new Size(86, 35);
+            RX12B.Size = new Size(88, 40);
             RX12B.TabIndex = 35;
-            RX12B.Text = "RX 1 + 2";
+            RX12B.Text = "MAIN+SUB";
             RX12B.UseVisualStyleBackColor = false;
             RX12B.MouseClick += RX12B_click;
             RX12B.MouseDown += RX12B_MouseDown;
-            // 
-            // RX_box
-            // 
-            RX_box.BackColor = Color.Black;
-            RX_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            RX_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            RX_box.ForeColor = Color.Cyan;
-            RX_box.Location = new Point(168, 103);
-            RX_box.Margin = new System.Windows.Forms.Padding(0);
-            RX_box.Name = "RX_box";
-            RX_box.Size = new Size(84, 18);
-            RX_box.TabIndex = 36;
-            RX_box.TabStop = false;
-            RX_box.Text = "<RX>";
-            RX_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            RX_box.TextChanged += RX_box_TextChanged;
             // 
             // SSB1
             // 
@@ -470,9 +371,9 @@ namespace DEVEL101
             SSB1.FlatAppearance.MouseOverBackColor = Color.Blue;
             SSB1.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             SSB1.ForeColor = Color.Yellow;
-            SSB1.Location = new Point(589, 34);
+            SSB1.Location = new Point(637, 42);
             SSB1.Name = "SSB1";
-            SSB1.Size = new Size(44, 35);
+            SSB1.Size = new Size(44, 40);
             SSB1.TabIndex = 37;
             SSB1.Text = "100";
             SSB1.UseVisualStyleBackColor = false;
@@ -486,9 +387,9 @@ namespace DEVEL101
             SSB2.FlatAppearance.MouseOverBackColor = Color.Blue;
             SSB2.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             SSB2.ForeColor = Color.Yellow;
-            SSB2.Location = new Point(631, 34);
+            SSB2.Location = new Point(681, 42);
             SSB2.Name = "SSB2";
-            SSB2.Size = new Size(44, 35);
+            SSB2.Size = new Size(44, 40);
             SSB2.TabIndex = 38;
             SSB2.Text = "200";
             SSB2.UseVisualStyleBackColor = false;
@@ -502,29 +403,13 @@ namespace DEVEL101
             SSB3.FlatAppearance.MouseOverBackColor = Color.Blue;
             SSB3.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             SSB3.ForeColor = Color.Yellow;
-            SSB3.Location = new Point(589, 68);
+            SSB3.Location = new Point(637, 83);
             SSB3.Name = "SSB3";
-            SSB3.Size = new Size(44, 35);
+            SSB3.Size = new Size(44, 40);
             SSB3.TabIndex = 39;
             SSB3.Text = "500";
             SSB3.UseVisualStyleBackColor = false;
             SSB3.MouseClick += SSB3_click;
-            // 
-            // DSPSPAN_box
-            // 
-            DSPSPAN_box.BackColor = Color.Black;
-            DSPSPAN_box.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            DSPSPAN_box.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            DSPSPAN_box.ForeColor = Color.Cyan;
-            DSPSPAN_box.Location = new Point(588, 103);
-            DSPSPAN_box.Margin = new System.Windows.Forms.Padding(0);
-            DSPSPAN_box.Name = "DSPSPAN_box";
-            DSPSPAN_box.Size = new Size(84, 18);
-            DSPSPAN_box.TabIndex = 40;
-            DSPSPAN_box.TabStop = false;
-            DSPSPAN_box.Text = "<SPAN>";
-            DSPSPAN_box.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            DSPSPAN_box.TextChanged += textBox1_TextChanged_1;
             // 
             // FixB
             // 
@@ -534,9 +419,10 @@ namespace DEVEL101
             FixB.FlatAppearance.MouseOverBackColor = Color.Blue;
             FixB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             FixB.ForeColor = Color.Yellow;
-            FixB.Location = new Point(506, 68);
+            FixB.Location = new Point(549, 83);
             FixB.Name = "FixB";
-            FixB.Size = new Size(85, 35);
+            FixB.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            FixB.Size = new Size(88, 40);
             FixB.TabIndex = 41;
             FixB.Text = "FIX";
             FixB.UseVisualStyleBackColor = false;
@@ -546,25 +432,24 @@ namespace DEVEL101
             // rfGainTrackBar
             // 
             rfGainTrackBar.BackColor = Color.DarkGreen;
-            rfGainTrackBar.Location = new Point(678, 1);
+            rfGainTrackBar.Location = new Point(730, 1);
             rfGainTrackBar.Maximum = 255;
             rfGainTrackBar.Name = "rfGainTrackBar";
             rfGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
-            rfGainTrackBar.Size = new Size(45, 102);
+            rfGainTrackBar.Size = new Size(45, 110);
             rfGainTrackBar.TabIndex = 42;
             rfGainTrackBar.TickFrequency = 16;
             rfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
             rfGainTrackBar.Value = 255;
-            // ValueChanged wired in InitializeTrackBarEvents()
             // 
             // volumeGainTrackBar
             // 
             volumeGainTrackBar.BackColor = Color.DarkGreen;
-            volumeGainTrackBar.Location = new Point(727, 1);
+            volumeGainTrackBar.Location = new Point(780, 1);
             volumeGainTrackBar.Maximum = 255;
             volumeGainTrackBar.Name = "volumeGainTrackBar";
             volumeGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
-            volumeGainTrackBar.Size = new Size(45, 102);
+            volumeGainTrackBar.Size = new Size(45, 110);
             volumeGainTrackBar.TabIndex = 43;
             volumeGainTrackBar.TickFrequency = 16;
             volumeGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
@@ -575,10 +460,10 @@ namespace DEVEL101
             FreqM_box.BackColor = Color.DarkGreen;
             FreqM_box.Font = new Font("Consolas", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             FreqM_box.ForeColor = Color.Yellow;
-            FreqM_box.Location = new Point(2, 1);
+            FreqM_box.Location = new Point(1, 1);
             FreqM_box.Multiline = true;
             FreqM_box.Name = "FreqM_box";
-            FreqM_box.Size = new Size(166, 33);
+            FreqM_box.Size = new Size(176, 50);
             FreqM_box.TabIndex = 44;
             FreqM_box.TabStop = false;
             FreqM_box.Text = "MAIN";
@@ -590,10 +475,10 @@ namespace DEVEL101
             FreqS_box.BackColor = Color.DarkBlue;
             FreqS_box.Font = new Font("Consolas", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             FreqS_box.ForeColor = Color.Yellow;
-            FreqS_box.Location = new Point(2, 36);
+            FreqS_box.Location = new Point(1, 52);
             FreqS_box.Multiline = true;
             FreqS_box.Name = "FreqS_box";
-            FreqS_box.Size = new Size(166, 33);
+            FreqS_box.Size = new Size(176, 50);
             FreqS_box.TabIndex = 45;
             FreqS_box.TabStop = false;
             FreqS_box.Text = "SUB";
@@ -604,16 +489,16 @@ namespace DEVEL101
             // 
             textBox1.BackColor = Color.Black;
             textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox1.Font = new Font("Verdana", 8F, FontStyle.Bold);
-            textBox1.ForeColor = Color.Cyan;
-            textBox1.Location = new Point(679, 106);
+            textBox1.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            textBox1.ForeColor = Color.Gold;
+            textBox1.Location = new Point(730, 110);
             textBox1.Margin = new System.Windows.Forms.Padding(0);
             textBox1.Multiline = true;
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(40, 15);
+            textBox1.Size = new Size(45, 16);
             textBox1.TabIndex = 46;
             textBox1.TabStop = false;
-            textBox1.Text = "00";
+            textBox1.Text = "<mrf>";
             textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox1.WordWrap = false;
             // 
@@ -621,16 +506,16 @@ namespace DEVEL101
             // 
             textBox2.BackColor = Color.Black;
             textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox2.Font = new Font("Verdana", 8F, FontStyle.Bold);
-            textBox2.ForeColor = Color.Cyan;
-            textBox2.Location = new Point(728, 106);
+            textBox2.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            textBox2.ForeColor = Color.Gold;
+            textBox2.Location = new Point(779, 110);
             textBox2.Margin = new System.Windows.Forms.Padding(0);
             textBox2.Multiline = true;
             textBox2.Name = "textBox2";
-            textBox2.Size = new Size(40, 15);
+            textBox2.Size = new Size(46, 18);
             textBox2.TabIndex = 47;
             textBox2.TabStop = false;
-            textBox2.Text = "00";
+            textBox2.Text = "<mvol>";
             textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox2.WordWrap = false;
             // 
@@ -652,12 +537,12 @@ namespace DEVEL101
             // pwrControlTrackBar
             // 
             pwrControlTrackBar.BackColor = Color.DarkGreen;
-            pwrControlTrackBar.Location = new Point(776, 1);
+            pwrControlTrackBar.Location = new Point(830, 1);
             pwrControlTrackBar.Maximum = 100;
             pwrControlTrackBar.Minimum = 5;
             pwrControlTrackBar.Name = "pwrControlTrackBar";
             pwrControlTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
-            pwrControlTrackBar.Size = new Size(45, 102);
+            pwrControlTrackBar.Size = new Size(45, 110);
             pwrControlTrackBar.TabIndex = 44;
             pwrControlTrackBar.TickFrequency = 5;
             pwrControlTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
@@ -667,16 +552,16 @@ namespace DEVEL101
             // 
             textBox3.BackColor = Color.Black;
             textBox3.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox3.Font = new Font("Verdana", 8F, FontStyle.Bold);
-            textBox3.ForeColor = Color.Cyan;
-            textBox3.Location = new Point(777, 106);
+            textBox3.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            textBox3.ForeColor = Color.Gold;
+            textBox3.Location = new Point(830, 110);
             textBox3.Margin = new System.Windows.Forms.Padding(0);
             textBox3.Multiline = true;
             textBox3.Name = "textBox3";
-            textBox3.Size = new Size(40, 15);
+            textBox3.Size = new Size(45, 16);
             textBox3.TabIndex = 45;
             textBox3.TabStop = false;
-            textBox3.Text = "100";
+            textBox3.Text = "<pwr>";
             textBox3.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox3.WordWrap = false;
             // 
@@ -688,9 +573,9 @@ namespace DEVEL101
             AMB.FlatAppearance.MouseOverBackColor = Color.Blue;
             AMB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             AMB.ForeColor = Color.Yellow;
-            AMB.Location = new Point(421, 34);
+            AMB.Location = new Point(456, 42);
             AMB.Name = "AMB";
-            AMB.Size = new Size(44, 35);
+            AMB.Size = new Size(44, 40);
             AMB.TabIndex = 49;
             AMB.Text = "AM";
             AMB.UseVisualStyleBackColor = false;
@@ -704,9 +589,9 @@ namespace DEVEL101
             FMB.FlatAppearance.MouseOverBackColor = Color.Blue;
             FMB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             FMB.ForeColor = Color.Yellow;
-            FMB.Location = new Point(464, 34);
+            FMB.Location = new Point(500, 42);
             FMB.Name = "FMB";
-            FMB.Size = new Size(44, 35);
+            FMB.Size = new Size(44, 40);
             FMB.TabIndex = 50;
             FMB.Text = "FM";
             FMB.UseVisualStyleBackColor = false;
@@ -720,9 +605,9 @@ namespace DEVEL101
             DIGB.FlatAppearance.MouseOverBackColor = Color.Blue;
             DIGB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             DIGB.ForeColor = Color.Yellow;
-            DIGB.Location = new Point(464, 68);
+            DIGB.Location = new Point(500, 83);
             DIGB.Name = "DIGB";
-            DIGB.Size = new Size(44, 35);
+            DIGB.Size = new Size(44, 40);
             DIGB.TabIndex = 51;
             DIGB.Text = "DIG";
             DIGB.UseVisualStyleBackColor = false;
@@ -736,9 +621,9 @@ namespace DEVEL101
             SSB4.FlatAppearance.MouseOverBackColor = Color.Blue;
             SSB4.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             SSB4.ForeColor = Color.Yellow;
-            SSB4.Location = new Point(631, 68);
+            SSB4.Location = new Point(681, 83);
             SSB4.Name = "SSB4";
-            SSB4.Size = new Size(44, 35);
+            SSB4.Size = new Size(44, 40);
             SSB4.TabIndex = 52;
             SSB4.Text = "1 M";
             SSB4.UseVisualStyleBackColor = false;
@@ -752,9 +637,9 @@ namespace DEVEL101
             SSB5.FlatAppearance.MouseOverBackColor = Color.Blue;
             SSB5.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             SSB5.ForeColor = Color.Yellow;
-            SSB5.Location = new Point(589, 0);
+            SSB5.Location = new Point(637, 1);
             SSB5.Name = "SSB5";
-            SSB5.Size = new Size(44, 35);
+            SSB5.Size = new Size(44, 40);
             SSB5.TabIndex = 53;
             SSB5.Text = "20 k";
             SSB5.UseVisualStyleBackColor = false;
@@ -768,9 +653,9 @@ namespace DEVEL101
             SSB6.FlatAppearance.MouseOverBackColor = Color.Blue;
             SSB6.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             SSB6.ForeColor = Color.Yellow;
-            SSB6.Location = new Point(631, 0);
+            SSB6.Location = new Point(681, 1);
             SSB6.Name = "SSB6";
-            SSB6.Size = new Size(44, 35);
+            SSB6.Size = new Size(44, 40);
             SSB6.TabIndex = 54;
             SSB6.Text = "50 k";
             SSB6.UseVisualStyleBackColor = false;
@@ -784,9 +669,9 @@ namespace DEVEL101
             IntTune.FlatAppearance.MouseOverBackColor = Color.Blue;
             IntTune.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             IntTune.ForeColor = Color.Yellow;
-            IntTune.Location = new Point(824, 1);
+            IntTune.Location = new Point(880, 1);
             IntTune.Name = "IntTune";
-            IntTune.Size = new Size(86, 35);
+            IntTune.Size = new Size(88, 40);
             IntTune.TabIndex = 55;
             IntTune.Text = "Int Tuner";
             IntTune.UseVisualStyleBackColor = false;
@@ -800,9 +685,9 @@ namespace DEVEL101
             ItuneOn.FlatAppearance.MouseOverBackColor = Color.Blue;
             ItuneOn.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ItuneOn.ForeColor = Color.Yellow;
-            ItuneOn.Location = new Point(824, 36);
+            ItuneOn.Location = new Point(880, 42);
             ItuneOn.Name = "ItuneOn";
-            ItuneOn.Size = new Size(44, 35);
+            ItuneOn.Size = new Size(44, 40);
             ItuneOn.TabIndex = 56;
             ItuneOn.Text = "On";
             ItuneOn.UseVisualStyleBackColor = false;
@@ -816,70 +701,53 @@ namespace DEVEL101
             ItuneOff.FlatAppearance.MouseOverBackColor = Color.Blue;
             ItuneOff.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             ItuneOff.ForeColor = Color.Yellow;
-            ItuneOff.Location = new Point(866, 36);
+            ItuneOff.Location = new Point(924, 42);
             ItuneOff.Name = "ItuneOff";
-            ItuneOff.Size = new Size(44, 35);
+            ItuneOff.Size = new Size(44, 40);
             ItuneOff.TabIndex = 57;
             ItuneOff.Text = "Off";
             ItuneOff.UseVisualStyleBackColor = false;
             ItuneOff.Click += ItuneOff_Click;
             // 
-            // textBox4
-            // 
-            textBox4.BackColor = Color.Black;
-            textBox4.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox4.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            textBox4.ForeColor = Color.Cyan;
-            textBox4.Location = new Point(827, 103);
-            textBox4.Margin = new System.Windows.Forms.Padding(0);
-            textBox4.Name = "textBox4";
-            textBox4.Size = new Size(84, 18);
-            textBox4.TabIndex = 58;
-            textBox4.TabStop = false;
-            textBox4.Text = "<INT TUN>";
-            textBox4.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // SubrfGainTrackBar
             // 
             SubrfGainTrackBar.BackColor = Color.DarkBlue;
-            SubrfGainTrackBar.Location = new Point(915, 1);
+            SubrfGainTrackBar.Location = new Point(973, 1);
             SubrfGainTrackBar.Maximum = 255;
             SubrfGainTrackBar.Name = "SubrfGainTrackBar";
             SubrfGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
-            SubrfGainTrackBar.Size = new Size(45, 102);
+            SubrfGainTrackBar.Size = new Size(45, 110);
             SubrfGainTrackBar.TabIndex = 59;
             SubrfGainTrackBar.TickFrequency = 16;
             SubrfGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
             SubrfGainTrackBar.Value = 255;
-            // ValueChanged wired in InitializeTrackBarEvents()
             // 
             // SubvolumeGainTrackBar
             // 
             SubvolumeGainTrackBar.BackColor = Color.DarkBlue;
-            SubvolumeGainTrackBar.Location = new Point(964, 1);
+            SubvolumeGainTrackBar.Location = new Point(1023, 1);
             SubvolumeGainTrackBar.Maximum = 255;
             SubvolumeGainTrackBar.Name = "SubvolumeGainTrackBar";
             SubvolumeGainTrackBar.Orientation = System.Windows.Forms.Orientation.Vertical;
-            SubvolumeGainTrackBar.Size = new Size(45, 102);
+            SubvolumeGainTrackBar.Size = new Size(45, 110);
             SubvolumeGainTrackBar.TabIndex = 60;
             SubvolumeGainTrackBar.TickFrequency = 16;
             SubvolumeGainTrackBar.TickStyle = System.Windows.Forms.TickStyle.Both;
-            // ValueChanged wired in InitializeTrackBarEvents()
             // 
             // textBox5
             // 
             textBox5.BackColor = Color.Black;
             textBox5.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox5.Font = new Font("Verdana", 8F, FontStyle.Bold);
-            textBox5.ForeColor = Color.Cyan;
-            textBox5.Location = new Point(916, 106);
+            textBox5.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            textBox5.ForeColor = Color.Gold;
+            textBox5.Location = new Point(973, 110);
             textBox5.Margin = new System.Windows.Forms.Padding(0);
             textBox5.Multiline = true;
             textBox5.Name = "textBox5";
-            textBox5.Size = new Size(40, 15);
+            textBox5.Size = new Size(45, 16);
             textBox5.TabIndex = 61;
             textBox5.TabStop = false;
-            textBox5.Text = "00";
+            textBox5.Text = "<srf>";
             textBox5.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox5.WordWrap = false;
             // 
@@ -887,16 +755,16 @@ namespace DEVEL101
             // 
             textBox6.BackColor = Color.Black;
             textBox6.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            textBox6.Font = new Font("Verdana", 8F, FontStyle.Bold);
-            textBox6.ForeColor = Color.Cyan;
-            textBox6.Location = new Point(965, 106);
+            textBox6.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            textBox6.ForeColor = Color.Gold;
+            textBox6.Location = new Point(1023, 110);
             textBox6.Margin = new System.Windows.Forms.Padding(0);
             textBox6.Multiline = true;
             textBox6.Name = "textBox6";
-            textBox6.Size = new Size(40, 15);
+            textBox6.Size = new Size(45, 18);
             textBox6.TabIndex = 62;
             textBox6.TabStop = false;
-            textBox6.Text = "00";
+            textBox6.Text = "<svol>";
             textBox6.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             textBox6.WordWrap = false;
             // 
@@ -909,9 +777,9 @@ namespace DEVEL101
             SWAP.FlatAppearance.MouseOverBackColor = Color.Blue;
             SWAP.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             SWAP.ForeColor = Color.Yellow;
-            SWAP.Location = new Point(0, 68);
+            SWAP.Location = new Point(1073, 1);
             SWAP.Name = "SWAP";
-            SWAP.Size = new Size(86, 35);
+            SWAP.Size = new Size(88, 40);
             SWAP.TabIndex = 63;
             SWAP.Text = "< === >";
             SWAP.UseVisualStyleBackColor = false;
@@ -923,7 +791,7 @@ namespace DEVEL101
             rfGainLabel.BackColor = Color.DarkGreen;
             rfGainLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
             rfGainLabel.ForeColor = Color.Yellow;
-            rfGainLabel.Location = new Point(681, 1);
+            rfGainLabel.Location = new Point(730, 1);
             rfGainLabel.Name = "rfGainLabel";
             rfGainLabel.Size = new Size(44, 10);
             rfGainLabel.TabIndex = 0;
@@ -935,7 +803,7 @@ namespace DEVEL101
             volumeGainLabel.BackColor = Color.DarkGreen;
             volumeGainLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
             volumeGainLabel.ForeColor = Color.Yellow;
-            volumeGainLabel.Location = new Point(727, 1);
+            volumeGainLabel.Location = new Point(779, 1);
             volumeGainLabel.Name = "volumeGainLabel";
             volumeGainLabel.Size = new Size(51, 10);
             volumeGainLabel.TabIndex = 0;
@@ -947,7 +815,7 @@ namespace DEVEL101
             pwrControlLabel.BackColor = Color.DarkGreen;
             pwrControlLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
             pwrControlLabel.ForeColor = Color.Yellow;
-            pwrControlLabel.Location = new Point(778, 1);
+            pwrControlLabel.Location = new Point(830, 1);
             pwrControlLabel.Name = "pwrControlLabel";
             pwrControlLabel.Size = new Size(38, 10);
             pwrControlLabel.TabIndex = 0;
@@ -959,7 +827,7 @@ namespace DEVEL101
             SubrfGainLabel.BackColor = Color.DarkGreen;
             SubrfGainLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
             SubrfGainLabel.ForeColor = Color.Yellow;
-            SubrfGainLabel.Location = new Point(920, 0);
+            SubrfGainLabel.Location = new Point(973, 1);
             SubrfGainLabel.Name = "SubrfGainLabel";
             SubrfGainLabel.Size = new Size(38, 10);
             SubrfGainLabel.TabIndex = 0;
@@ -971,7 +839,7 @@ namespace DEVEL101
             SubvolumeGainLabel.BackColor = Color.DarkGreen;
             SubvolumeGainLabel.Font = new Font("Verdana", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
             SubvolumeGainLabel.ForeColor = Color.Yellow;
-            SubvolumeGainLabel.Location = new Point(966, 0);
+            SubvolumeGainLabel.Location = new Point(1023, 1);
             SubvolumeGainLabel.Name = "SubvolumeGainLabel";
             SubvolumeGainLabel.Size = new Size(45, 10);
             SubvolumeGainLabel.TabIndex = 0;
@@ -985,20 +853,49 @@ namespace DEVEL101
             RX12off.FlatAppearance.MouseOverBackColor = Color.Blue;
             RX12off.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             RX12off.ForeColor = Color.Yellow;
-            RX12off.Location = new Point(168, 68);
+            RX12off.Location = new Point(182, 83);
             RX12off.Name = "RX12off";
-            RX12off.Size = new Size(86, 35);
+            RX12off.Size = new Size(88, 40);
             RX12off.TabIndex = 64;
             RX12off.Text = "RXs Off";
             RX12off.UseVisualStyleBackColor = false;
             RX12off.MouseClick += RX12off_click;
+            // 
+            // comPortComboBox
+            // 
+            comPortComboBox.BackColor = Color.DarkGreen;
+            comPortComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            comPortComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            comPortComboBox.Font = new Font("Verdana", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            comPortComboBox.ForeColor = Color.Yellow;
+            comPortComboBox.ItemHeight = 16;
+            comPortComboBox.Location = new Point(93, 103);
+            comPortComboBox.Name = "comPortComboBox";
+            comPortComboBox.Size = new Size(85, 22);
+            comPortComboBox.TabIndex = 65;
+            // 
+            // ConnectToggleButton
+            // 
+            ConnectToggleButton.BackColor = Color.DarkGreen;
+            ConnectToggleButton.FlatAppearance.BorderColor = Color.White;
+            ConnectToggleButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            ConnectToggleButton.Font = new Font("Verdana", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            ConnectToggleButton.ForeColor = Color.Yellow;
+            ConnectToggleButton.Location = new Point(2, 104);
+            ConnectToggleButton.Name = "ConnectToggleButton";
+            ConnectToggleButton.Size = new Size(85, 21);
+            ConnectToggleButton.TabIndex = 66;
+            ConnectToggleButton.Text = "Connect";
+            ConnectToggleButton.UseVisualStyleBackColor = false;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = Color.Black;
-            ClientSize = new Size(1013, 125);
+            ClientSize = new Size(1161, 125);
+            Controls.Add(ConnectToggleButton);
+            Controls.Add(comPortComboBox);
             Controls.Add(RX12off);
             Controls.Add(rfGainLabel);
             Controls.Add(volumeGainLabel);
@@ -1010,7 +907,6 @@ namespace DEVEL101
             Controls.Add(textBox5);
             Controls.Add(SubvolumeGainTrackBar);
             Controls.Add(SubrfGainTrackBar);
-            Controls.Add(textBox4);
             Controls.Add(ItuneOff);
             Controls.Add(ItuneOn);
             Controls.Add(IntTune);
@@ -1028,24 +924,18 @@ namespace DEVEL101
             Controls.Add(volumeGainTrackBar);
             Controls.Add(rfGainTrackBar);
             Controls.Add(FixB);
-            Controls.Add(DSPSPAN_box);
             Controls.Add(SSB3);
             Controls.Add(SSB2);
             Controls.Add(SSB1);
-            Controls.Add(RX_box);
             Controls.Add(RX12B);
             Controls.Add(RX2);
             Controls.Add(RX1B);
-            Controls.Add(IPO_box);
-            Controls.Add(ANT_box);
             Controls.Add(AMP2B);
             Controls.Add(AMP1B);
             Controls.Add(IPOB);
             Controls.Add(ANT3RXB);
             Controls.Add(ANT2B);
             Controls.Add(ANT1B);
-            Controls.Add(MODE_box);
-            Controls.Add(DSPMOD_box);
             Controls.Add(RFTOGGLE);
             Controls.Add(CWB);
             Controls.Add(LSBB);
@@ -1054,7 +944,6 @@ namespace DEVEL101
             Controls.Add(CursorB);
             Controls.Add(ExtTuneButton);
             Controls.Add(TEMP_box);
-            Controls.Add(RFSQL_box);
             Controls.Add(pwrControlTrackBar);
             Controls.Add(textBox3);
             Font = new Font("Segoe UI", 9F, FontStyle.Bold);
@@ -1077,7 +966,6 @@ namespace DEVEL101
         }
 
         #endregion
-        private System.Windows.Forms.TextBox RFSQL_box;
         private System.Windows.Forms.TextBox TEMP_box;
         private System.Windows.Forms.Button ExtTuneButton;
         private System.Windows.Forms.Button CursorB;
@@ -1086,24 +974,18 @@ namespace DEVEL101
         private System.Windows.Forms.Button LSBB;
         private System.Windows.Forms.Button CWB;
         private System.Windows.Forms.Button RFTOGGLE;
-        private System.Windows.Forms.TextBox DSPMOD_box;
-        private System.Windows.Forms.TextBox MODE_box;
         private System.Windows.Forms.Button ANT1B;
         private System.Windows.Forms.Button ANT2B;
         private System.Windows.Forms.Button ANT3RXB;
         private System.Windows.Forms.Button IPOB;
         private System.Windows.Forms.Button AMP1B;
         private System.Windows.Forms.Button AMP2B;
-        private System.Windows.Forms.TextBox ANT_box;
-        private System.Windows.Forms.TextBox IPO_box;
         private System.Windows.Forms.Button RX1B;
         private System.Windows.Forms.Button RX2;
         private System.Windows.Forms.Button RX12B;
-        private System.Windows.Forms.TextBox RX_box;
         private System.Windows.Forms.Button SSB1;
         private System.Windows.Forms.Button SSB2;
         private System.Windows.Forms.Button SSB3;
-        private System.Windows.Forms.TextBox DSPSPAN_box;
         private System.Windows.Forms.Button FixB;
         private System.Windows.Forms.TrackBar rfGainTrackBar;
         private System.Windows.Forms.TrackBar volumeGainTrackBar;
@@ -1123,7 +1005,6 @@ namespace DEVEL101
         private System.Windows.Forms.Button IntTune;
         private System.Windows.Forms.Button ItuneOn;
         private System.Windows.Forms.Button ItuneOff;
-        private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.TrackBar SubrfGainTrackBar;
         private System.Windows.Forms.TrackBar SubvolumeGainTrackBar;
         private System.Windows.Forms.TextBox textBox5;
@@ -1135,6 +1016,8 @@ namespace DEVEL101
         private System.Windows.Forms.Label SubrfGainLabel;
         private System.Windows.Forms.Label SubvolumeGainLabel;
         private System.Windows.Forms.Button RX12off;
+        private System.Windows.Forms.ComboBox comPortComboBox;
+        private System.Windows.Forms.Button ConnectToggleButton;
     }
 }
 

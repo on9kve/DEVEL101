@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -10,8 +10,8 @@ using System.Windows.Forms;
 
 // Code : Kees van Engelen (keesvanengelen@gmail.com)
 //
-// Version : 18-x (feb 26)
-// Name    : DEVEL101 Yaesu FTDX101D @ COMx
+// Version : 18  (01 mrt 26)
+// Name    : DEVEL101 Yaesu FTDX101D 
 
 
 namespace DEVEL101
@@ -47,18 +47,14 @@ namespace DEVEL101
         private SerialPort serialPort;
         private readonly object serialLock = new object();
 
-        // --- Poll loop ---
-        private CancellationTokenSource cts;
+        // --- Poll timer (one command per tick â€” never a background thread timer) ---
+        private System.Windows.Forms.Timer pollTimer;
+        private int pollIndex = 0;
 
         // --- Slider debounce (150 ms) ---
         private System.Windows.Forms.Timer sliderDebounceTimer;
         private readonly Dictionary<TrackBar, string> pendingSliderCommands = new();
         private bool isUpdatingFromRadio = false;
-
-        // --- COM port controls (programmatic — can be moved to designer later) ---
-        private ComboBox comPortComboBox;
-        private Button ConnectButton;
-        private Button DisconnectButton;
 
         // --- State ---
         private bool   rfSqlOn   = false;
@@ -83,6 +79,9 @@ namespace DEVEL101
                 }
             }
 
+            // Poll timer
+            pollTimer = new System.Windows.Forms.Timer { Interval = 50 };
+
             // Slider debounce timer
             sliderDebounceTimer = new System.Windows.Forms.Timer { Interval = 150 };
             sliderDebounceTimer.Tick += SliderDebounceTimer_Tick;
@@ -95,10 +94,7 @@ namespace DEVEL101
             SetButtonActive(ExtTuneButton, false);
             ExtTuneButton.Enabled = false;
 
-            // Create COM port controls row
-            CreatePortControls();
-
-            // Wire all events — not in designer
+            // Wire all events â€” not in designer
             InitializeTrackBarEvents();
 
             // Populate COM port list
@@ -107,69 +103,6 @@ namespace DEVEL101
             this.Text = "DEVEL101 v18 - by Kees, ON9KVE - Disconnected";
             this.FormClosing += MainForm_FormClosing;
         }
-
-        // =================================================================
-        #region Serial Port Controls (programmatic)
-
-        private void CreatePortControls()
-        {
-            // Expand form height for the new control row
-            this.ClientSize = new System.Drawing.Size(this.ClientSize.Width, this.ClientSize.Height + 33);
-
-            var portLabel = new Label
-            {
-                Text      = "PORT:",
-                ForeColor = Color.Yellow,
-                BackColor = Color.Black,
-                Font      = new Font("Verdana", 7F, FontStyle.Bold),
-                AutoSize  = true,
-                Location  = new Point(3, 135)
-            };
-
-            comPortComboBox = new ComboBox
-            {
-                Location      = new Point(46, 130),
-                Size          = new Size(110, 25),
-                DropDownStyle = ComboBoxStyle.DropDownList,
-                DrawMode      = DrawMode.OwnerDrawFixed,
-                BackColor     = Color.DarkGreen,
-                ForeColor     = Color.Yellow,
-                Font          = new Font("Verdana", 7F, FontStyle.Bold)
-            };
-
-            ConnectButton = new Button
-            {
-                Location                = new Point(162, 128),
-                Size                    = new Size(78, 25),
-                Text                    = "Connect",
-                FlatStyle               = FlatStyle.Flat,
-                Font                    = new Font("Verdana", 7F, FontStyle.Bold),
-                ForeColor               = Color.Yellow,
-                BackColor               = Color.DarkGreen,
-                UseVisualStyleBackColor = false
-            };
-            ConnectButton.FlatAppearance.BorderColor = Color.White;
-
-            DisconnectButton = new Button
-            {
-                Location                = new Point(244, 128),
-                Size                    = new Size(90, 25),
-                Text                    = "Disconnect",
-                FlatStyle               = FlatStyle.Flat,
-                Font                    = new Font("Verdana", 7F, FontStyle.Bold),
-                ForeColor               = Color.Yellow,
-                BackColor               = Color.DarkRed,
-                UseVisualStyleBackColor = false
-            };
-            DisconnectButton.FlatAppearance.BorderColor = Color.White;
-
-            this.Controls.Add(portLabel);
-            this.Controls.Add(comPortComboBox);
-            this.Controls.Add(ConnectButton);
-            this.Controls.Add(DisconnectButton);
-        }
-
-        #endregion
 
         // =================================================================
         #region Serial Port Management
@@ -189,46 +122,52 @@ namespace DEVEL101
             comPortComboBox.SelectedIndex = idx >= 0 ? idx : (ports.Length > 0 ? 0 : -1);
         }
 
-        private void ConnectButton_Click(object sender, EventArgs e)
+        private void ConnectToggleButton_Click(object sender, EventArgs e)
         {
-            if (comPortComboBox.SelectedItem == null) return;
-            string portName = comPortComboBox.SelectedItem.ToString();
-            try
+            if (serialPort == null || !serialPort.IsOpen)
             {
-                serialPort = new SerialPort(portName, 38400, Parity.None, 8, StopBits.Two)
+                if (comPortComboBox.SelectedItem == null) return;
+                string portName = comPortComboBox.SelectedItem.ToString();
+                try
                 {
-                    Handshake    = Handshake.None,
-                    RtsEnable    = true,
-                    ReadTimeout  = 500,
-                    WriteTimeout = 500
-                };
-                serialPort.Open();
+                    serialPort = new SerialPort(portName, 38400, Parity.None, 8, StopBits.Two)
+                    {
+                        Handshake    = Handshake.None,
+                        RtsEnable    = true,
+                        ReadTimeout  = 500,
+                        WriteTimeout = 500
+                    };
+                    serialPort.Open();
 
-                Properties.Settings.Default.SerialPort = portName;
-                Properties.Settings.Default.Save();
+                    Properties.Settings.Default.SerialPort = portName;
+                    Properties.Settings.Default.Save();
 
-                this.Text = $"DEVEL101 v18 - by Kees, ON9KVE - {portName}";
-                ExtTuneButton.Enabled = true;
+                    this.Text = $"DEVEL101 v18 - by Kees, ON9KVE - {portName}";
+                    ExtTuneButton.Enabled = true;
+                    SetButtonActive(ConnectToggleButton, true);
+                    ConnectToggleButton.Text = "Disconnect";
 
-                cts = new CancellationTokenSource();
-                Task.Run(async () =>
+                    Task.Run(() =>
+                    {
+                        ReadRadioStatus();
+                        BeginInvoke((Action)(() => { pollIndex = 0; pollTimer.Start(); }));
+                    });
+                }
+                catch (Exception ex)
                 {
-                    await ReadRadioStatusAsync();
-                    await DoThisLoopAsync();
-                });
+                    MessageBox.Show("Failed to open port: " + ex.Message, "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show("Failed to open port: " + ex.Message, "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                DisconnectSerialPort();
             }
         }
 
-        private void DisconnectButton_Click(object sender, EventArgs e) => DisconnectSerialPort();
-
         private void DisconnectSerialPort()
         {
-            cts?.Cancel();
+            pollTimer.Stop();
             if (serialPort?.IsOpen == true) serialPort.Close();
             serialPort?.Dispose();
             serialPort = null;
@@ -236,6 +175,8 @@ namespace DEVEL101
                 BeginInvoke((Action)(() =>
                 {
                     ExtTuneButton.Enabled = false;
+                    SetButtonActive(ConnectToggleButton, false);
+                    ConnectToggleButton.Text = "Connect";
                     this.Text = "DEVEL101 v18 - by Kees, ON9KVE - Disconnected";
                 }));
         }
@@ -245,7 +186,7 @@ namespace DEVEL101
         // =================================================================
         #region Command Sending
 
-        /// <summary>Atomic send + read under lock — use for all poll and interactive commands.</summary>
+        /// <summary>Atomic send + read under lock â€” use for all poll and interactive commands.</summary>
         private string SendReceive(string cmd)
         {
             if (serialPort == null || !serialPort.IsOpen) return "";
@@ -261,7 +202,7 @@ namespace DEVEL101
             }
         }
 
-        /// <summary>Send only — no response expected (e.g. SET commands).</summary>
+        /// <summary>Send only â€” no response expected (e.g. SET commands).</summary>
         private void SendCommand(string cmd)
         {
             if (serialPort == null || !serialPort.IsOpen) return;
@@ -286,49 +227,44 @@ namespace DEVEL101
             CMD_FREQA_R,  CMD_FREQB_R,  CMD_TUNER_R
         };
 
-        private async Task ReadRadioStatusAsync()
+        /// <summary>One-shot initial read of all parameters on connect (runs on background thread).</summary>
+        private void ReadRadioStatus()
         {
             foreach (string cmd in PollCmds)
             {
-                if (cts.IsCancellationRequested) return;
-                ProcessResponse(SendReceive(cmd));
-                await Task.Delay(60);
+                string resp = SendReceive(cmd);
+                Invoke((Action)(() => ProcessResponse(resp)));
+                Thread.Sleep(60);
             }
         }
 
-        private async Task DoThisLoopAsync()
+        /// <summary>Fires on the UI thread â€” sends ONE command per tick, advances pollIndex.</summary>
+        private async void PollTimer_Tick(object sender, EventArgs e)
         {
-            string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error.log");
+            pollTimer.Stop();
 
-            while (!cts.IsCancellationRequested)
+            if (pollIndex == 0)
             {
-                try
+                lock (serialLock)
                 {
-                    lock (serialLock)
-                    {
-                        serialPort?.DiscardInBuffer();
-                        serialPort?.DiscardOutBuffer();
-                    }
-
-                    foreach (string cmd in PollCmds)
-                    {
-                        if (cts.IsCancellationRequested) break;
-                        ProcessResponse(SendReceive(cmd));
-                    }
-
-                    Bar = Bar == "¦" ? " " : "¦";
-                    UpdateTextBox(BUSY_box, Bar);
-
-                    await Task.Delay(100, cts.Token);
-                }
-                catch (OperationCanceledException) { break; }
-                catch (Exception ex)
-                {
-                    try { File.AppendAllText(logFilePath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - Loop error: {ex.Message}{Environment.NewLine}"); }
-                    catch { }
-                    await Task.Delay(100);
+                    serialPort?.DiscardInBuffer();
+                    serialPort?.DiscardOutBuffer();
                 }
             }
+
+            string cmd  = PollCmds[pollIndex];
+            pollIndex   = (pollIndex + 1) % PollCmds.Length;
+
+            string resp = await Task.Run(() => SendReceive(cmd));
+            ProcessResponse(resp);
+
+            if (pollIndex == 0)
+            {
+                Bar = Bar == "â–ˆ" ? " " : "â–ˆ";
+                BUSY_box.Text = Bar;
+            }
+
+            pollTimer.Start();
         }
 
         private void ProcessResponse(string resp)
@@ -341,55 +277,57 @@ namespace DEVEL101
                 decimal TempD   = decimal.Floor((tempnum / 2.3M) - 6);
                 FColorB = TempD > 40 ? "Red" : TempD > 33 ? "Orange" : "Cyan";
                 if (TempD > 40) Console.Beep(3000, 1000);
-                UpdateTextBox(TEMP_box, $"{TempD:00}°C", Color.FromName(FColorB));
+                UpdateTextBox(TEMP_box, $"{TempD:00}Â°C", Color.FromName(FColorB));
             }
             else if (resp.StartsWith("EX030107") && resp.Length >= 9)
             {
                 bool sq = resp[8] == '1';
                 rfSqlOn = sq;
-                UpdateTextBox(RFSQL_box, sq ? "Squelch" : "RF");
+                SetButtonActive(RFTOGGLE, sq);
+                RFTOGGLE.Text = sq ? "SQL" : "RF / SQL";
             }
             else if (resp.StartsWith("SS06") && resp.Length >= 5)
             {
-                string d = resp[4] switch { '8' => "CURSOR", '5' => "CENTER", _ => "FIX" };
-                UpdateTextBox(DSPMOD_box, d);
+                SetButtonActive(CursorB, resp[4] == '8');
+                SetButtonActive(CenterB, resp[4] == '5');
+                SetButtonActive(FixB,    resp[4] != '8' && resp[4] != '5');
             }
             else if (resp.StartsWith("SS05") && resp.Length >= 5)
             {
-                string d = resp[4] switch
-                {
-                    '9' => "1 M", '4' => "20k",  '5' => "50k",
-                    '6' => "100k", '7' => "200k", '8' => "500k", _ => "*OTHER*"
-                };
-                UpdateTextBox(DSPSPAN_box, d);
+                SetButtonActive(SSB4, resp[4] == '9');
+                SetButtonActive(SSB5, resp[4] == '4');
+                SetButtonActive(SSB6, resp[4] == '5');
+                SetButtonActive(SSB1, resp[4] == '6');
+                SetButtonActive(SSB2, resp[4] == '7');
+                SetButtonActive(SSB3, resp[4] == '8');
             }
             else if (resp.StartsWith("MD0") && resp.Length >= 4)
             {
-                string d = resp[3] switch
-                {
-                    '1' => "LSB", '2' => "USB", '3' => "CW",
-                    '4' => "FM",  '5' => "AM",  'C' => "DIG-U", _ => "???"
-                };
-                UpdateTextBox(MODE_box, d);
+                SetButtonActive(LSBB, resp[3] == '1');
+                SetButtonActive(USBB, resp[3] == '2');
+                SetButtonActive(CWB,  resp[3] == '3');
+                SetButtonActive(FMB,  resp[3] == '4');
+                SetButtonActive(AMB,  resp[3] == '5');
+                SetButtonActive(DIGB, resp[3] == 'C');
             }
             else if (resp.StartsWith("AN0") && resp.Length >= 4)
             {
-                string d = resp[3] switch { '1' => "ANT1", '2' => "ANT2", '3' => "ANT3/RX", _ => "???" };
-                UpdateTextBox(ANT_box, d);
+                SetButtonActive(ANT1B,   resp[3] == '1');
+                SetButtonActive(ANT2B,   resp[3] == '2');
+                SetButtonActive(ANT3RXB, resp[3] == '3');
             }
             else if (resp.StartsWith("PA0") && resp.Length >= 4)
             {
-                string d = resp[3] switch { '0' => "IPO", '1' => "AMP1", '2' => "AMP2", _ => "???" };
-                UpdateTextBox(IPO_box, d);
+                SetButtonActive(IPOB,  resp[3] == '0');
+                SetButtonActive(AMP1B, resp[3] == '1');
+                SetButtonActive(AMP2B, resp[3] == '2');
             }
             else if (resp.StartsWith("FR") && resp.Length >= 4)
             {
-                string d = resp switch
-                {
-                    "FR01" => "RX 1", "FR10" => "RX 2",
-                    "FR00" => "RX 1 + 2", "FR11" => "RXs off", _ => "???"
-                };
-                UpdateTextBox(RX_box, d);
+                SetButtonActive(RX1B,    resp == "FR01");
+                SetButtonActive(RX2,     resp == "FR10");
+                SetButtonActive(RX12B,   resp == "FR00");
+                SetButtonActive(RX12off, resp == "FR11");
             }
             else if (resp.StartsWith("RG0") && resp.Length >= 6)
             {
@@ -433,7 +371,8 @@ namespace DEVEL101
             else if (resp.StartsWith("AC") && resp.Length >= 5)
             {
                 bool on = resp[4] == '1';
-                UpdateTextBox(textBox4, on ? "TUNE ON" : "TUNE OFF", on ? Color.Red : Color.Cyan);
+                SetButtonActive(ItuneOn,  on);
+                SetButtonActive(ItuneOff, !on);
             }
         }
 
@@ -450,23 +389,13 @@ namespace DEVEL101
 
         private void UpdateTextBox(TextBox tb, string text, Color? foreColor = null)
         {
-            if (tb.InvokeRequired)
-            {
-                tb.BeginInvoke(() => UpdateTextBox(tb, text, foreColor));
-                return;
-            }
             tb.Text = text;
             if (foreColor.HasValue) tb.ForeColor = foreColor.Value;
         }
 
-        /// <summary>Update a slider + display textbox from the radio — guards against feedback loops.</summary>
+        /// <summary>Update a slider + display textbox from the radio â€” guards against feedback loops.</summary>
         private void SafeUpdateSlider(TrackBar tb, TextBox display, int value, string displayStr)
         {
-            if (tb.InvokeRequired)
-            {
-                tb.BeginInvoke(() => SafeUpdateSlider(tb, display, value, displayStr));
-                return;
-            }
             isUpdatingFromRadio = true;
             tb.Value = Math.Clamp(value, tb.Minimum, tb.Maximum);
             isUpdatingFromRadio = false;
@@ -476,7 +405,7 @@ namespace DEVEL101
         #endregion
 
         // =================================================================
-        #region Event Wiring — InitializeTrackBarEvents
+        #region Event Wiring â€” InitializeTrackBarEvents
 
         private void InitializeTrackBarEvents()
         {
@@ -493,10 +422,12 @@ namespace DEVEL101
             ExtTuneButton.MouseEnter += TuneButton_MouseEnter;
             ExtTuneButton.MouseLeave += TuneButton_MouseLeave;
 
+            // Poll timer
+            pollTimer.Tick += PollTimer_Tick;
+
             // COM port controls
-            ConnectButton.Click      += ConnectButton_Click;
-            DisconnectButton.Click   += DisconnectButton_Click;
-            comPortComboBox.DrawItem += ComboBox_DrawItem;
+            ConnectToggleButton.Click += ConnectToggleButton_Click;
+            comPortComboBox.DrawItem  += ComboBox_DrawItem;
         }
 
         private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -581,9 +512,8 @@ namespace DEVEL101
 
         private void RFB_click(object sender, MouseEventArgs e)
         {
-            rfSqlOn = !rfSqlOn;
-            SendCommand(rfSqlOn ? CMD_RFSQL_ON : CMD_RFSQL_OFF);
-            UpdateTextBox(RFSQL_box, rfSqlOn ? "Squelch" : "RF");
+            // Send opposite of current state; ProcessResponse confirms and updates UI
+            SendCommand(rfSqlOn ? CMD_RFSQL_OFF : CMD_RFSQL_ON);
         }
 
         private void TuneButton_MouseDown(object sender, MouseEventArgs e)
@@ -669,7 +599,7 @@ namespace DEVEL101
             Properties.Settings.Default.IsLocationSaved = true;
             Properties.Settings.Default.Save();
 
-            cts?.Cancel();
+            pollTimer.Stop();
             if (serialPort?.IsOpen == true) serialPort.Close();
         }
 
@@ -677,9 +607,6 @@ namespace DEVEL101
 
         // --- Empty stubs kept for designer compatibility ---
         private void TextBox1_TextChanged(object sender, EventArgs e) { }
-        private void TextBox2_TextChanged(object sender, EventArgs e) { }
-        private void textBox1_TextChanged_1(object sender, EventArgs e) { }
-        private void RX_box_TextChanged(object sender, EventArgs e) { }
         private void FixB_Click(object sender, EventArgs e) { }
         private void rfGainTrackBar_Scroll(object sender, EventArgs e) { }
     }
