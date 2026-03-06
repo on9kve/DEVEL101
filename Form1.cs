@@ -18,6 +18,8 @@ namespace DEVEL101
 {
     public partial class MainForm : Form
     {
+        private const string AppTitle = "The101Box v20 - by Kees, ON9KVE";
+
         #region CAT Command Constants
         private const string CMD_TEMP       = "RM9;";
         private const string CMD_RFSQL_R    = "EX030107;";
@@ -107,7 +109,7 @@ namespace DEVEL101
             // Populate COM port list
             LoadAvailablePorts();
 
-            this.Text = "DEVEL101 v18 - by Kees, ON9KVE - Disconnected";
+            this.Text = AppTitle + " - Disconnected";
             this.FormClosing  += MainForm_FormClosing;
         }
 
@@ -149,7 +151,7 @@ namespace DEVEL101
                     Properties.Settings.Default.SerialPort = portName;
                     Properties.Settings.Default.Save();
 
-                    this.Text = $"DEVEL101 v18 - by Kees, ON9KVE - {portName}";
+                    this.Text = $"{AppTitle} - {portName}";
                     ExtTuneButton.Enabled = true;
                     SetButtonActive(ConnectToggleButton, true);
                     ConnectToggleButton.Text = "Disconnect";
@@ -184,7 +186,7 @@ namespace DEVEL101
                     ExtTuneButton.Enabled = false;
                     SetButtonActive(ConnectToggleButton, false);
                     ConnectToggleButton.Text = "Connect";
-                    this.Text = "DEVEL101 v18 - by Kees, ON9KVE - Disconnected";
+                    this.Text = AppTitle + " - Disconnected";
                 }));
         }
 

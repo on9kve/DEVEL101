@@ -4,16 +4,15 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <ApplicationIcon>Vintage Radio.ico</ApplicationIcon>
-    <StartupObject>DEVEL101.Program</StartupObject>
     <IsPublishable>True</IsPublishable>
-  <AssemblyName>DEVEL101</AssemblyName>
+  <AssemblyName>The101Box</AssemblyName>
   <RootNamespace>DEVEL101</RootNamespace>
+  <ApplicationIcon>FTDX101D.ico</ApplicationIcon>
 
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include=".github\copilot-instructions.md" />
+    <Content Include="FTDX101D.ico" />
   </ItemGroup>
 
   <ItemGroup>
