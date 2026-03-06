@@ -12,8 +12,8 @@ namespace DEVEL101
     /// </summary>
     internal sealed class LocalSettingsProvider : SettingsProvider
     {
-        private const string AppFolder   = "DEVEL101";
-        private const string SectionName = "DEVEL101.Properties.Settings";
+        private const string AppFolder   = "The101Box";
+        private const string SectionName = "The101Box.Properties.Settings";
 
         private static string ConfigPath => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
