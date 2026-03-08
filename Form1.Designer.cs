@@ -45,16 +45,15 @@ namespace DEVEL101
             AMP1B = new System.Windows.Forms.Button();
             AMP2B = new System.Windows.Forms.Button();
             RX1B = new System.Windows.Forms.Button();
-            RX2 = new System.Windows.Forms.Button();
-            RX12B = new System.Windows.Forms.Button();
+            RX2B = new System.Windows.Forms.Button();
             SSB1 = new System.Windows.Forms.Button();
             SSB2 = new System.Windows.Forms.Button();
             SSB3 = new System.Windows.Forms.Button();
             FixB = new System.Windows.Forms.Button();
             rfGainTrackBar = new System.Windows.Forms.TrackBar();
             volumeGainTrackBar = new System.Windows.Forms.TrackBar();
-            FreqM_box = new System.Windows.Forms.Label();
-            FreqS_box = new System.Windows.Forms.Label();
+            FreqM_box = new System.Windows.Forms.Button();
+            FreqS_box = new System.Windows.Forms.Button();
             textBox1 = new System.Windows.Forms.TextBox();
             textBox2 = new System.Windows.Forms.TextBox();
             BUSY_box = new System.Windows.Forms.TextBox();
@@ -79,9 +78,12 @@ namespace DEVEL101
             pwrControlLabel = new System.Windows.Forms.Label();
             SubrfGainLabel = new System.Windows.Forms.Label();
             SubvolumeGainLabel = new System.Windows.Forms.Label();
-            RX12off = new System.Windows.Forms.Button();
             comPortComboBox = new System.Windows.Forms.ComboBox();
             ConnectToggleButton = new System.Windows.Forms.Button();
+            StepComboBox = new System.Windows.Forms.ComboBox();
+            BANDB = new System.Windows.Forms.Button();
+            MINB = new System.Windows.Forms.Button();
+            PLUSB = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)rfGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)volumeGainTrackBar).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pwrControlTrackBar).BeginInit();
@@ -322,46 +324,31 @@ namespace DEVEL101
             RX1B.FlatAppearance.MouseOverBackColor = Color.Blue;
             RX1B.Font = new Font("Verdana", 6.75F, FontStyle.Bold);
             RX1B.ForeColor = Color.Yellow;
-            RX1B.Location = new Point(182, 1);
+            RX1B.Location = new Point(1073, 2);
             RX1B.Name = "RX1B";
             RX1B.Size = new Size(44, 40);
             RX1B.TabIndex = 33;
-            RX1B.Text = "MAIN";
+            RX1B.Text = "RX-M";
             RX1B.UseVisualStyleBackColor = false;
             RX1B.MouseClick += RX1B_click;
+            RX1B.MouseDown += RX1B_MouseDown;
             // 
-            // RX2
+            // RX2B
             // 
-            RX2.BackColor = Color.DarkGreen;
-            RX2.FlatAppearance.BorderColor = Color.White;
-            RX2.FlatAppearance.MouseDownBackColor = Color.Red;
-            RX2.FlatAppearance.MouseOverBackColor = Color.Blue;
-            RX2.Font = new Font("Verdana", 7F, FontStyle.Bold);
-            RX2.ForeColor = Color.Yellow;
-            RX2.Location = new Point(226, 1);
-            RX2.Name = "RX2";
-            RX2.Size = new Size(44, 40);
-            RX2.TabIndex = 34;
-            RX2.Text = "SUB";
-            RX2.UseVisualStyleBackColor = false;
-            RX2.MouseClick += RX2B_click;
-            // 
-            // RX12B
-            // 
-            RX12B.BackColor = Color.DarkGreen;
-            RX12B.FlatAppearance.BorderColor = Color.White;
-            RX12B.FlatAppearance.MouseDownBackColor = Color.Red;
-            RX12B.FlatAppearance.MouseOverBackColor = Color.Blue;
-            RX12B.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            RX12B.ForeColor = Color.Yellow;
-            RX12B.Location = new Point(182, 42);
-            RX12B.Name = "RX12B";
-            RX12B.Size = new Size(88, 40);
-            RX12B.TabIndex = 35;
-            RX12B.Text = "MAIN+SUB";
-            RX12B.UseVisualStyleBackColor = false;
-            RX12B.MouseClick += RX12B_click;
-            RX12B.MouseDown += RX12B_MouseDown;
+            RX2B.BackColor = Color.DarkGreen;
+            RX2B.FlatAppearance.BorderColor = Color.White;
+            RX2B.FlatAppearance.MouseDownBackColor = Color.Red;
+            RX2B.FlatAppearance.MouseOverBackColor = Color.Blue;
+            RX2B.Font = new Font("Verdana", 6.75F, FontStyle.Bold);
+            RX2B.ForeColor = Color.Yellow;
+            RX2B.Location = new Point(1117, 2);
+            RX2B.Name = "RX2B";
+            RX2B.Size = new Size(44, 40);
+            RX2B.TabIndex = 34;
+            RX2B.Text = "RX-S";
+            RX2B.UseVisualStyleBackColor = false;
+            RX2B.MouseClick += RX2B_click;
+            RX2B.MouseDown += RX2B_MouseDown;
             // 
             // SSB1
             // 
@@ -458,6 +445,9 @@ namespace DEVEL101
             // FreqM_box
             // 
             FreqM_box.BackColor = Color.Black;
+            FreqM_box.FlatAppearance.BorderSize = 0;
+            FreqM_box.FlatAppearance.MouseOverBackColor = Color.Silver;
+            FreqM_box.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             FreqM_box.Font = new Font("Courier New", 20F, FontStyle.Bold, GraphicsUnit.Point, 0);
             FreqM_box.ForeColor = Color.Gold;
             FreqM_box.Location = new Point(1, 1);
@@ -465,19 +455,24 @@ namespace DEVEL101
             FreqM_box.Size = new Size(176, 50);
             FreqM_box.TabIndex = 44;
             FreqM_box.Text = "MAIN";
-            FreqM_box.TextAlign = ContentAlignment.MiddleCenter;
+            FreqM_box.UseVisualStyleBackColor = false;
+            FreqM_box.Click += FreqM_box_Click;
             // 
             // FreqS_box
             // 
             FreqS_box.BackColor = Color.Black;
-            FreqS_box.Font = new Font("Courier New", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            FreqS_box.FlatAppearance.BorderSize = 0;
+            FreqS_box.FlatAppearance.MouseOverBackColor = Color.DodgerBlue;
+            FreqS_box.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            FreqS_box.Font = new Font("Courier New", 20F, FontStyle.Bold);
             FreqS_box.ForeColor = Color.Gold;
             FreqS_box.Location = new Point(1, 52);
             FreqS_box.Name = "FreqS_box";
             FreqS_box.Size = new Size(176, 50);
             FreqS_box.TabIndex = 45;
             FreqS_box.Text = "SUB";
-            FreqS_box.TextAlign = ContentAlignment.MiddleCenter;
+            FreqS_box.UseVisualStyleBackColor = false;
+            FreqS_box.Click += FreqS_box_Click;
             // 
             // textBox1
             // 
@@ -769,11 +764,11 @@ namespace DEVEL101
             SWAP.FlatAppearance.BorderSize = 3;
             SWAP.FlatAppearance.MouseDownBackColor = Color.Red;
             SWAP.FlatAppearance.MouseOverBackColor = Color.Blue;
-            SWAP.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            SWAP.Font = new Font("Verdana", 7F, FontStyle.Bold);
             SWAP.ForeColor = Color.Yellow;
-            SWAP.Location = new Point(1073, 1);
+            SWAP.Location = new Point(184, 83);
             SWAP.Name = "SWAP";
-            SWAP.Size = new Size(88, 40);
+            SWAP.Size = new Size(88, 22);
             SWAP.TabIndex = 63;
             SWAP.Text = "< === >";
             SWAP.UseVisualStyleBackColor = false;
@@ -839,22 +834,6 @@ namespace DEVEL101
             SubvolumeGainLabel.TabIndex = 0;
             SubvolumeGainLabel.Text = "SUB VOL";
             // 
-            // RX12off
-            // 
-            RX12off.BackColor = Color.DarkGreen;
-            RX12off.FlatAppearance.BorderColor = Color.White;
-            RX12off.FlatAppearance.MouseDownBackColor = Color.Red;
-            RX12off.FlatAppearance.MouseOverBackColor = Color.Blue;
-            RX12off.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            RX12off.ForeColor = Color.Yellow;
-            RX12off.Location = new Point(182, 83);
-            RX12off.Name = "RX12off";
-            RX12off.Size = new Size(88, 40);
-            RX12off.TabIndex = 64;
-            RX12off.Text = "RXs Off";
-            RX12off.UseVisualStyleBackColor = false;
-            RX12off.MouseClick += RX12off_click;
-            // 
             // comPortComboBox
             // 
             comPortComboBox.BackColor = Color.DarkGreen;
@@ -882,15 +861,77 @@ namespace DEVEL101
             ConnectToggleButton.Text = "Connect";
             ConnectToggleButton.UseVisualStyleBackColor = false;
             // 
+            // StepComboBox
+            // 
+            StepComboBox.BackColor = Color.DarkGreen;
+            StepComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            StepComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            StepComboBox.Font = new Font("Verdana", 7F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            StepComboBox.ForeColor = Color.Yellow;
+            StepComboBox.ItemHeight = 16;
+            StepComboBox.Location = new Point(187, 104);
+            StepComboBox.Name = "StepComboBox";
+            StepComboBox.Size = new Size(85, 22);
+            StepComboBox.TabIndex = 67;
+            // 
+            // BANDB
+            // 
+            BANDB.BackColor = Color.DarkGreen;
+            BANDB.FlatAppearance.BorderColor = Color.White;
+            BANDB.FlatAppearance.MouseDownBackColor = Color.Red;
+            BANDB.FlatAppearance.MouseOverBackColor = Color.Blue;
+            BANDB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            BANDB.ForeColor = Color.Yellow;
+            BANDB.Location = new Point(184, 1);
+            BANDB.Name = "BANDB";
+            BANDB.Size = new Size(88, 40);
+            BANDB.TabIndex = 68;
+            BANDB.Text = "BAND";
+            BANDB.UseVisualStyleBackColor = false;
+            BANDB.MouseDown += BANDB_MouseDown;
+            // 
+            // MINB
+            // 
+            MINB.BackColor = Color.DarkGreen;
+            MINB.FlatAppearance.BorderColor = Color.White;
+            MINB.FlatAppearance.MouseDownBackColor = Color.Red;
+            MINB.FlatAppearance.MouseOverBackColor = Color.Blue;
+            MINB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            MINB.ForeColor = Color.Yellow;
+            MINB.Location = new Point(184, 42);
+            MINB.Name = "MINB";
+            MINB.Size = new Size(44, 40);
+            MINB.TabIndex = 69;
+            MINB.Text = "[-]";
+            MINB.UseVisualStyleBackColor = false;
+            // 
+            // PLUSB
+            // 
+            PLUSB.BackColor = Color.DarkGreen;
+            PLUSB.FlatAppearance.BorderColor = Color.White;
+            PLUSB.FlatAppearance.MouseDownBackColor = Color.Red;
+            PLUSB.FlatAppearance.MouseOverBackColor = Color.Blue;
+            PLUSB.Font = new Font("Verdana", 8.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            PLUSB.ForeColor = Color.Yellow;
+            PLUSB.Location = new Point(228, 42);
+            PLUSB.Name = "PLUSB";
+            PLUSB.Size = new Size(44, 40);
+            PLUSB.TabIndex = 70;
+            PLUSB.Text = "[+]";
+            PLUSB.UseVisualStyleBackColor = false;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             BackColor = Color.Black;
             ClientSize = new Size(1161, 125);
+            Controls.Add(PLUSB);
+            Controls.Add(MINB);
+            Controls.Add(BANDB);
+            Controls.Add(StepComboBox);
             Controls.Add(ConnectToggleButton);
             Controls.Add(comPortComboBox);
-            Controls.Add(RX12off);
             Controls.Add(rfGainLabel);
             Controls.Add(volumeGainLabel);
             Controls.Add(pwrControlLabel);
@@ -921,8 +962,7 @@ namespace DEVEL101
             Controls.Add(SSB3);
             Controls.Add(SSB2);
             Controls.Add(SSB1);
-            Controls.Add(RX12B);
-            Controls.Add(RX2);
+            Controls.Add(RX2B);
             Controls.Add(RX1B);
             Controls.Add(AMP2B);
             Controls.Add(AMP1B);
@@ -975,8 +1015,7 @@ namespace DEVEL101
         private System.Windows.Forms.Button AMP1B;
         private System.Windows.Forms.Button AMP2B;
         private System.Windows.Forms.Button RX1B;
-        private System.Windows.Forms.Button RX2;
-        private System.Windows.Forms.Button RX12B;
+        private System.Windows.Forms.Button RX2B;
         private System.Windows.Forms.Button SSB1;
         private System.Windows.Forms.Button SSB2;
         private System.Windows.Forms.Button SSB3;
@@ -984,8 +1023,8 @@ namespace DEVEL101
         private System.Windows.Forms.TrackBar rfGainTrackBar;
         private System.Windows.Forms.TrackBar volumeGainTrackBar;
         private System.Windows.Forms.TrackBar pwrControlTrackBar;
-        private System.Windows.Forms.Label FreqM_box;
-        private System.Windows.Forms.Label FreqS_box;
+        private System.Windows.Forms.Button FreqM_box;
+        private System.Windows.Forms.Button FreqS_box;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox3;
@@ -1009,9 +1048,12 @@ namespace DEVEL101
         private System.Windows.Forms.Label pwrControlLabel;
         private System.Windows.Forms.Label SubrfGainLabel;
         private System.Windows.Forms.Label SubvolumeGainLabel;
-        private System.Windows.Forms.Button RX12off;
         private System.Windows.Forms.ComboBox comPortComboBox;
         private System.Windows.Forms.Button ConnectToggleButton;
+        private System.Windows.Forms.ComboBox StepComboBox;
+        private System.Windows.Forms.Button BANDB;
+        private System.Windows.Forms.Button MINB;
+        private System.Windows.Forms.Button PLUSB;
     }
 }
 

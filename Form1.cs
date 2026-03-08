@@ -39,6 +39,7 @@ namespace DEVEL101
         private const string CMD_FREQA_R    = "FA;";
         private const string CMD_FREQB_R    = "FB;";
         private const string CMD_TUNER_R    = "AC;";
+        private const string CMD_VS_R       = "VS;";
         private const string CMD_SWAP       = "SV;";
         private const string CMD_CENTER     = "SS0650000;";
         private const string CMD_CURSOR     = "SS0680000;";
@@ -59,8 +60,16 @@ namespace DEVEL101
         private bool isUpdatingFromRadio = false;
 
         // --- State ---
-        private bool   rfSqlOn   = false;
-        private bool   iTuneOn   = false;
+        private bool   rfSqlOn      = false;
+        private bool   iTuneOn      = false;
+        private bool   isBothMuted  = false;
+        private int    savedMainVol = 0;
+        private int    savedSubVol  = 0;
+        private bool   rx1Active    = false;
+        private bool   rx2Active    = false;
+        private bool   mainFocused  = true;
+        private long   mainFreqHz   = 0;
+        private long   subFreqHz    = 0;
         private int    flashCount = 0;
         private System.Windows.Forms.Timer extTuneFlashTimer;
         private string Bar       = "";
@@ -233,7 +242,7 @@ namespace DEVEL101
             CMD_MODE_R,   CMD_ANT_R,    CMD_IPO_R,    CMD_RX_R,
             CMD_RFGAIN_R, CMD_VOL_R,    CMD_PWR_R,
             CMD_SUBRF_R,  CMD_SUBVOL_R,
-            CMD_FREQA_R,  CMD_FREQB_R,  CMD_TUNER_R
+            CMD_FREQA_R,  CMD_FREQB_R,  CMD_TUNER_R,  CMD_VS_R
         };
 
         /// <summary>One-shot initial read of all parameters on connect (runs on background thread).</summary>
@@ -333,10 +342,10 @@ namespace DEVEL101
             }
             else if (resp.StartsWith("FR") && resp.Length >= 4)
             {
-                SetButtonActive(RX1B,    resp == "FR01");
-                SetButtonActive(RX2,     resp == "FR10");
-                SetButtonActive(RX12B,   resp == "FR00");
-                SetButtonActive(RX12off, resp == "FR11");
+                rx1Active = resp == "FR00" || resp == "FR01";
+                rx2Active = resp == "FR00" || resp == "FR10";
+                SetButtonActive(RX1B, rx1Active);
+                SetButtonActive(RX2B, rx2Active);
             }
             else if (resp.StartsWith("RG0") && resp.Length >= 6)
             {
@@ -370,8 +379,9 @@ namespace DEVEL101
                 string freqStr = resp.Substring(2, resp.Length - 3); // FTDX101D-specific offset
                 if (long.TryParse(freqStr, out long freqHz))
                 {
-                    long hz = freqHz * 10;
-                    UpdateTextBox(FreqM_box, $"{hz / 1000000,2}.{hz / 1000 % 1000:000}.{hz % 1000:000}");
+                    mainFreqHz = freqHz * 10;
+                    UpdateTextBox(FreqM_box, $"{mainFreqHz / 1000000,2}.{mainFreqHz / 1000 % 1000:000}.{mainFreqHz % 1000:000}");
+                    if (mainFocused) BANDB.Text = GetBandName(mainFreqHz);
                 }
             }
             else if (resp.StartsWith("FB") && resp.Length >= 4)
@@ -379,8 +389,9 @@ namespace DEVEL101
                 string freqStr = resp.Substring(2, resp.Length - 3); // FTDX101D-specific offset
                 if (long.TryParse(freqStr, out long freqHz))
                 {
-                    long hz = freqHz * 10;
-                    UpdateTextBox(FreqS_box, $"{hz / 1000000,2}.{hz / 1000 % 1000:000}.{hz % 1000:000}");
+                    subFreqHz = freqHz * 10;
+                    UpdateTextBox(FreqS_box, $"{subFreqHz / 1000000,2}.{subFreqHz / 1000 % 1000:000}.{subFreqHz % 1000:000}");
+                    if (!mainFocused) BANDB.Text = GetBandName(subFreqHz);
                 }
             }
             else if (resp.StartsWith("AC") && resp.Length >= 5)
@@ -389,6 +400,10 @@ namespace DEVEL101
                 iTuneOn = on;
                 SetButtonActive(ItuneOn,  on);
                 SetButtonActive(ItuneOff, !on);
+            }
+            else if (resp.StartsWith("VS") && resp.Length >= 3)
+            {
+                SetReceiverFocus(resp[2] == '0');
             }
         }
 
@@ -431,6 +446,10 @@ namespace DEVEL101
             pwrControlTrackBar.ValueChanged    += PwrControlTrackBar_ValueChanged;
             SubrfGainTrackBar.ValueChanged     += SubrfGainTrackBar_ValueChanged;
             SubvolumeGainTrackBar.ValueChanged += SubvolumeGainTrackBar_ValueChanged;
+
+            // Frequency buttons (custom paint for reliable rendering)
+            FreqM_box.Paint += FreqButton_Paint;
+            FreqS_box.Paint += FreqButton_Paint;
 
             // External tuner button
             ExtTuneButton.MouseDown  += TuneButton_MouseDown;
@@ -572,14 +591,91 @@ namespace DEVEL101
         private void IPOB_click(object sender, MouseEventArgs e)    { SendCommand("PA00;"); }
         private void AMP1B_click(object sender, MouseEventArgs e)   { SendCommand("PA01;"); }
         private void AMP2B_click(object sender, MouseEventArgs e)   { SendCommand("PA02;"); }
-        private void RX1B_click(object sender, MouseEventArgs e)    { SendCommand("FR01;"); }
-        private void RX2B_click(object sender, MouseEventArgs e)    { SendCommand("FR10;"); }
-        private void RX12B_click(object sender, MouseEventArgs e)   { SendCommand("FR00;"); }
-        private void RX12B_MouseDown(object sender, MouseEventArgs e)
+        private void BANDB_MouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right) SendCommand("FR11;");
+            int x = mainFocused ? 0 : 2;
+            if (e.Button == MouseButtons.Left)  SendCommand($"BU{x};");
+            if (e.Button == MouseButtons.Right) SendCommand($"BD{x};");
         }
-        private void RX12off_click(object sender, MouseEventArgs e) { SendCommand("FR11;"); }
+        private static string GetBandName(long hz) => hz switch
+        {
+            >= 1_800_000 and < 2_000_000   => "160m",
+            >= 3_500_000 and < 4_000_000   => "80m",
+            >= 5_250_000 and < 5_450_000   => "60m",
+            >= 7_000_000 and < 7_300_000   => "40m",
+            >= 10_100_000 and < 10_150_000 => "30m",
+            >= 14_000_000 and < 14_350_000 => "20m",
+            >= 18_068_000 and < 18_168_000 => "17m",
+            >= 21_000_000 and < 21_450_000 => "15m",
+            >= 24_890_000 and < 24_990_000 => "12m",
+            >= 28_000_000 and < 29_700_000 => "10m",
+            >= 50_000_000 and < 54_000_000 => "6m",
+            _ => "GEN"
+        };
+        private void FreqM_box_Click(object sender, EventArgs e) { SendCommand("VS0;"); }
+        private void FreqS_box_Click(object sender, EventArgs e) { SendCommand("VS1;"); }
+        private void SetReceiverFocus(bool focusMain)
+        {
+            mainFocused = focusMain;
+            FreqM_box.BackColor = focusMain ? Color.LightGray : Color.Black;
+            FreqM_box.ForeColor = focusMain ? Color.Black     : Color.Gold;
+            FreqS_box.BackColor = focusMain ? Color.Black     : Color.Blue;
+            FreqS_box.ForeColor = focusMain ? Color.Gold      : Color.White;
+            FreqM_box.Invalidate();
+            FreqS_box.Invalidate();
+            BANDB.Text = GetBandName(focusMain ? mainFreqHz : subFreqHz);
+        }
+        private void RX1B_click(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            bool newRx1 = !rx1Active;
+            SendCommand((newRx1, rx2Active) switch
+            {
+                (true,  true)  => "FR00;",
+                (true,  false) => "FR01;",
+                (false, true)  => "FR10;",
+                _              => "FR11;"
+            });
+        }
+        private void RX2B_click(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            bool newRx2 = !rx2Active;
+            SendCommand((rx1Active, newRx2) switch
+            {
+                (true,  true)  => "FR00;",
+                (true,  false) => "FR01;",
+                (false, true)  => "FR10;",
+                _              => "FR11;"
+            });
+        }
+        private void RX1B_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right) ToggleBothMute();
+        }
+        private void RX2B_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right) ToggleBothMute();
+        }
+        private void ToggleBothMute()
+        {
+            if (!isBothMuted)
+            {
+                savedMainVol = volumeGainTrackBar.Value;
+                savedSubVol  = SubvolumeGainTrackBar.Value;
+                SendCommand("AG0000;");
+                SendCommand("AG1000;");
+                isBothMuted = true;
+            }
+            else
+            {
+                SendCommand($"AG0{savedMainVol:D3};");
+                SendCommand($"AG1{savedSubVol:D3};");
+                SafeUpdateSlider(volumeGainTrackBar,    textBox2, savedMainVol, savedMainVol.ToString("D3"));
+                SafeUpdateSlider(SubvolumeGainTrackBar, textBox6, savedSubVol,  savedSubVol.ToString("D3"));
+                isBothMuted = false;
+            }
+        }
         private void SSB1_click(object sender, EventArgs e) { SendCommand("SS0560000;"); }
         private void SSB2_click(object sender, EventArgs e) { SendCommand("SS0570000;"); }
         private void SSB3_click(object sender, EventArgs e) { SendCommand("SS0580000;"); }
@@ -611,6 +707,16 @@ namespace DEVEL101
                 ExtTuneButton.BackColor = Color.DarkGreen;
                 ExtTuneButton.Text = "Ext Tuner";
             }
+        }
+
+        private void FreqButton_Paint(object sender, PaintEventArgs e)
+        {
+            var btn = (Button)sender;
+            using var bg = new SolidBrush(btn.BackColor);
+            e.Graphics.FillRectangle(bg, btn.ClientRectangle);
+            TextRenderer.DrawText(e.Graphics, btn.Text, btn.Font, btn.ClientRectangle,
+                btn.ForeColor,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
         }
 
         private void TuneButton_Paint(object sender, PaintEventArgs e)
